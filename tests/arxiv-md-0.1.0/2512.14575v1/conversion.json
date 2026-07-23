@@ -1,0 +1,183 @@
+{
+  "ok": true,
+  "source": "/tmp/arxiv-md-archives-0l1lmpk5/2512.14575v1-source.tar.gz",
+  "main_tex": "/tmp/ar2md-comparison/arxiv-md-0.1.0/2512.14575v1/source/main.tex",
+  "converter": "tex",
+  "warnings": [
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: altabstract"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: authornote"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: aiparagraph"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: humanparagraph"
+    }
+  ],
+  "stats": {
+    "tex_files_read": 1,
+    "figures_total": 0,
+    "figures_resolved": 0,
+    "tables_html": 0,
+    "tables_raw": 0,
+    "unknown_commands": 0,
+    "unknown_command_counts": {},
+    "unknown_env_counts": {
+      "aiparagraph": 8,
+      "altabstract": 1,
+      "authornote": 1,
+      "humanparagraph": 7
+    },
+    "raw_fallback_command_counts": {
+      "\\Mbar": 27,
+      "\\QQ": 7,
+      "\\ZZ": 6,
+      "\\_": 3,
+      "\\aiinline": 8,
+      "\\alpha": 22,
+      "\\begin": 67,
+      "\\beta": 26,
+      "\\cdot": 27,
+      "\\cdots": 29,
+      "\\circ": 3,
+      "\\cite": 22,
+      "\\delta": 30,
+      "\\dim": 1,
+      "\\doublecheck": 6,
+      "\\ee": 81,
+      "\\emph": 9,
+      "\\end": 67,
+      "\\eqref": 7,
+      "\\exp": 1,
+      "\\frac": 14,
+      "\\frown": 3,
+      "\\geq": 53,
+      "\\href": 37,
+      "\\humaninline": 20,
+      "\\in": 27,
+      "\\int": 16,
+      "\\item": 31,
+      "\\itshape": 2,
+      "\\label": 17,
+      "\\langle": 15,
+      "\\ldots": 31,
+      "\\left": 17,
+      "\\leq": 49,
+      "\\lfloor": 1,
+      "\\mapsto": 1,
+      "\\mathbb": 3,
+      "\\max": 4,
+      "\\medskip": 6,
+      "\\min": 2,
+      "\\neq": 9,
+      "\\noindent": 10,
+      "\\notin": 1,
+      "\\operatorname": 3,
+      "\\phi": 6,
+      "\\prod": 4,
+      "\\psi": 44,
+      "\\qquad": 6,
+      "\\quad": 3,
+      "\\rangle": 15,
+      "\\ref": 43,
+      "\\rfloor": 1,
+      "\\right": 17,
+      "\\sigma": 17,
+      "\\small": 1,
+      "\\subsection": 8,
+      "\\sum": 7,
+      "\\tau": 38,
+      "\\texorpdfstring": 2,
+      "\\text": 5,
+      "\\textbf": 20,
+      "\\texttt": 5,
+      "\\textup": 27,
+      "\\to": 8,
+      "\\ttfamily": 1,
+      "\\url": 1,
+      "\\varphi": 4,
+      "\\vspace": 3,
+      "\\widetilde": 22
+    }
+  },
+  "config": {
+    "keep_source": false,
+    "render_assets": true,
+    "asset_mode": "rasterize",
+    "raster_dpi": 120,
+    "strict": false,
+    "limits": {
+      "max_archive_members": 10000,
+      "max_archive_total_bytes": 536870912,
+      "max_single_file_bytes": 67108864,
+      "max_tex_source_bytes": 67108864,
+      "max_include_files": 2000,
+      "max_asset_files_scanned": 50000,
+      "max_tex_files_scanned": 500,
+      "max_bib_files_scanned": 2000,
+      "max_pdf_pages_rasterized": 1,
+      "max_macro_expansion_depth": 32,
+      "max_macro_expanded_nodes": 100000,
+      "max_table_nesting_depth": 4
+    }
+  }
+}

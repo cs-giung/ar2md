@@ -1,0 +1,1224 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>[1207.0580] Improving neural networks by preventing co-adaptation of feature detectors</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Improving neural networks by preventing co-adaptation of feature detectors">
+<meta name="twitter:image:src" content="https://ar5iv.labs.arxiv.org/assets/ar5iv_card.png">
+<meta name="twitter:image:alt" content="ar5iv logo">
+<meta property="og:title" content="Improving neural networks by preventing co-adaptation of feature detectors">
+<meta property="og:site_name" content="ar5iv">
+<meta property="og:image" content="https://ar5iv.labs.arxiv.org/assets/ar5iv_card.png">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://ar5iv.labs.arxiv.org/html/1207.0580">
+<link rel="canonical" target="_blank" href="https://ar5iv.labs.arxiv.org/html/1207.0580">
+
+<!--Generated on Fri Mar 15 02:14:38 2024 by LaTeXML (version 0.8.8) http://dlmf.nist.gov/LaTeXML/.-->
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+<script>
+  function detectColorScheme(){
+    var theme="light";
+    var current_theme = localStorage.getItem("ar5iv_theme");
+    if(current_theme){
+      if(current_theme == "dark"){
+        theme = "dark";
+      } }
+    else if(!window.matchMedia) { return false; }
+    else if(window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      theme = "dark"; }
+    if (theme=="dark") {
+      document.documentElement.setAttribute("data-theme", "dark");
+    } else {
+      document.documentElement.setAttribute("data-theme", "light"); } }
+
+  detectColorScheme();
+
+  function toggleColorScheme(){
+    var current_theme = localStorage.getItem("ar5iv_theme");
+    if (current_theme) {
+      if (current_theme == "light") {
+        localStorage.setItem("ar5iv_theme", "dark"); }
+      else {
+        localStorage.setItem("ar5iv_theme", "light"); } }
+    else {
+        localStorage.setItem("ar5iv_theme", "dark"); }
+    detectColorScheme(); }
+</script>
+<link media="all" rel="stylesheet" href="../assets/ar5iv-fonts.0.8.4.css"><link media="all" rel="stylesheet" href="../assets/ar5iv.0.8.5.css"><link media="all" rel="stylesheet" href="../assets/ar5iv-site.0.2.2.css">
+</head>
+<body>
+<div class="ltx_page_main">
+<div class="ltx_page_content">
+<article class="ltx_document ltx_authors_1line">
+<h1 class="ltx_title ltx_title_document">Improving neural networks by preventing co-adaptation of feature detectors</h1>
+<div class="ltx_authors">
+<span class="ltx_creator ltx_role_author">
+<span class="ltx_personname">G. E. Hinton<sup id="id3.3.id1" class="ltx_sup">∗</sup>, N. Srivastava, A. Krizhevsky, I. Sutskever and R. R. Salakhutdinov
+<br class="ltx_break">Department of Computer Science, University of Toronto,
+<br class="ltx_break">6 King’s College Rd, Toronto, Ontario M5S 3G4, Canada
+<br class="ltx_break">
+<br class="ltx_break"><sup id="id4.4.id2" class="ltx_sup">∗</sup>To whom correspondence should be addressed; E-mail: hinton@cs.toronto.edu
+</span></span>
+</div>
+
+<div id="p1" class="ltx_para">
+<blockquote id="p1.1" class="ltx_quote">
+<p id="p1.1.1" class="ltx_p"><span id="p1.1.1.1" class="ltx_text ltx_font_bold">When a large feedforward neural network is trained on a small training set, it typically
+performs poorly on held-out test data. This “overfitting” is greatly reduced by
+randomly omitting half of the feature detectors on each training case. This prevents
+complex co-adaptations in which a feature detector is only helpful in the context of
+several other specific feature detectors. Instead, each neuron learns to detect a feature
+that is generally helpful for producing the correct answer given the combinatorially large
+variety of internal contexts in which it must operate. Random “dropout” gives big
+improvements on many benchmark tasks and sets new records for speech and object
+recognition.</span></p>
+</blockquote>
+</div>
+<div id="p2" class="ltx_para">
+<p id="p2.1" class="ltx_p">A feedforward, artificial neural network uses layers of non-linear “hidden”
+units between its inputs and its outputs. By adapting the weights on the incoming
+connections of these hidden units it learns feature detectors that enable it to predict
+the correct output when given an input vector  (<span id="p2.1.1" class="ltx_text ltx_font_bold">?</span>). If the relationship between the
+input and the correct output is complicated and the network has enough hidden units to
+model it accurately, there will typically be many different settings of the weights that
+can model the training set almost perfectly, especially if there is only a limited amount of
+labeled training data. Each of these weight vectors will make different predictions on
+held-out test data and almost all of them will do worse on the test data than on the training
+data because the feature detectors have been tuned to work well together on the training
+data but not on the test data.</p>
+</div>
+<div id="p3" class="ltx_para">
+<p id="p3.1" class="ltx_p">Overfitting can be reduced by using “dropout” to prevent complex co-adaptations on the
+training data. On each presentation of each training case, each hidden unit is randomly
+omitted from the network with a probability of 0.5, so a hidden unit cannot rely on other
+hidden units being present. Another way to view the dropout procedure is as a very
+efficient way of performing model averaging with neural networks. A good way to reduce the
+error on the test set is to average the predictions produced by a very large number of
+different networks. The standard way to do this is to train many separate networks and
+then to apply each of these networks to the test data, but this is computationally
+expensive during both training and testing. Random dropout makes it possible to train a
+huge number of different networks in a reasonable time. There is almost certainly a
+different network for each presentation of each training case but all of these networks
+share the same weights for the hidden units that are present.</p>
+</div>
+<div id="p4" class="ltx_para">
+<p id="p4.1" class="ltx_p">We use the standard, stochastic gradient descent procedure for training the dropout neural
+networks on mini-batches of training cases, but we modify the penalty term that
+is normally used to prevent the weights from growing too large. Instead of penalizing the
+squared length (L2 norm) of the whole weight vector, we set an upper bound on the L2 norm
+of the incoming weight vector for each individual hidden unit. If a weight-update violates
+this constraint, we renormalize the weights of the hidden unit by division. Using a
+constraint rather than a penalty prevents weights from growing very large no matter how
+large the proposed weight-update is. This makes it possible to start with a very large
+learning rate which decays during learning, thus allowing a far more thorough search of
+the weight-space than methods that start with small weights and use a small learning rate.</p>
+</div>
+<div id="p5" class="ltx_para">
+<p id="p5.2" class="ltx_p">At test time, we use the “mean network” that contains all of the hidden units but with
+their outgoing weights halved to compensate for the fact that twice as many of them are
+active. In practice, this gives very similar performance to averaging over a large number
+of dropout networks. In networks with a single hidden layer of <math id="p5.1.m1.1" class="ltx_Math" alttext="N" display="inline"><semantics id="p5.1.m1.1a"><mi id="p5.1.m1.1.1" xref="p5.1.m1.1.1.cmml">N</mi><annotation-xml encoding="MathML-Content" id="p5.1.m1.1b"><ci id="p5.1.m1.1.1.cmml" xref="p5.1.m1.1.1">𝑁</ci></annotation-xml><annotation encoding="application/x-tex" id="p5.1.m1.1c">N</annotation></semantics></math> units and a “softmax”
+output layer for computing the probabilities of the class labels, using the mean network
+is exactly equivalent to taking the geometric mean of the probability distributions over
+labels predicted by all <math id="p5.2.m2.1" class="ltx_Math" alttext="2^{N}" display="inline"><semantics id="p5.2.m2.1a"><msup id="p5.2.m2.1.1" xref="p5.2.m2.1.1.cmml"><mn id="p5.2.m2.1.1.2" xref="p5.2.m2.1.1.2.cmml">2</mn><mi id="p5.2.m2.1.1.3" xref="p5.2.m2.1.1.3.cmml">N</mi></msup><annotation-xml encoding="MathML-Content" id="p5.2.m2.1b"><apply id="p5.2.m2.1.1.cmml" xref="p5.2.m2.1.1"><csymbol cd="ambiguous" id="p5.2.m2.1.1.1.cmml" xref="p5.2.m2.1.1">superscript</csymbol><cn type="integer" id="p5.2.m2.1.1.2.cmml" xref="p5.2.m2.1.1.2">2</cn><ci id="p5.2.m2.1.1.3.cmml" xref="p5.2.m2.1.1.3">𝑁</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="p5.2.m2.1c">2^{N}</annotation></semantics></math> possible networks. Assuming the dropout networks do not all
+make identical predictions, the prediction of the mean network is guaranteed to assign a
+higher log probability to the correct answer than the mean of the log probabilities
+assigned by the individual dropout networks  (<span id="p5.2.1" class="ltx_text ltx_font_bold">?</span>). Similarly, for regression
+with linear output units, the squared error of the mean network is always better than the
+average of the squared errors of the dropout networks.</p>
+</div>
+<div id="p6" class="ltx_para">
+<p id="p6.1" class="ltx_p">We initially explored the effectiveness of dropout using MNIST, a widely used benchmark
+for machine learning algorithms. It contains 60,000 28x28 training images of individual
+hand written digits and 10,000 test images. Performance on the test set can be greatly
+improved by enhancing the training data with transformed images  (<span id="p6.1.1" class="ltx_text ltx_font_bold">?</span>) or by
+wiring knowledge about spatial transformations into a convolutional neural network
+ (<span id="p6.1.2" class="ltx_text ltx_font_bold">?</span>) or by using generative pre-training to extract useful features from the
+training images without using the labels  (<span id="p6.1.3" class="ltx_text ltx_font_bold">?</span>). Without using any of these
+tricks, the best published result for a standard feedforward neural network is 160 errors
+on the test set. This can be reduced to about 130 errors by using 50% dropout with
+separate L2 constraints on the incoming weights of each hidden unit and further reduced to
+about 110 errors by also dropping out a random 20% of the pixels (see figure <a href="1207.0580v1.html#S0.F1" title="Figure 1 ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">1</span></a>).</p>
+</div>
+<figure id="S0.F1" class="ltx_figure">
+<p id="S0.F1.1" class="ltx_p ltx_align_center"><span id="S0.F1.1.1" class="ltx_text"><img src="1207.0580/assets/mnist.png" id="S0.F1.1.1.g1" class="ltx_graphics ltx_img_square" width="397" height="348" alt="Refer to caption"></span></p>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 1: </span>The error rate on the MNIST test set for a variety of neural network architectures
+trained with backpropagation using 50% dropout for all hidden layers. The lower set of
+lines also use 20% dropout
+for the input layer. The best previously published result for this task using
+backpropagation without pre-training or weight-sharing or enhancements of the training
+set is shown as a horizontal line.
+</figcaption>
+</figure>
+<div id="p7" class="ltx_para">
+<p id="p7.1" class="ltx_p">Dropout can also be combined with generative pre-training, but in this case we use a small
+learning rate and no weight constraints to avoid losing the feature detectors discovered
+by the pre-training. The publically available, pre-trained deep belief net described in
+ (<span id="p7.1.1" class="ltx_text ltx_font_italic">?</span>) got 118 errors when it was fine-tuned using standard back-propagation and
+92 errors when fine-tuned using 50% dropout of the hidden units. When the publically
+available code at URL was used to pre-train a deep Boltzmann machine five times, the
+unrolled network got 103, 97, 94, 93 and 88 errors when fine-tuned using standard
+backpropagation and 83, 79, 78, 78 and 77 errors when using 50% dropout of the hidden
+units. The mean of 79 errors is a record for methods that do not use prior knowledge or
+enhanced training sets (For details see Appendix <a href="1207.0580v1.html#A1" title="Appendix A Experiments on MNIST ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">A</span></a>).</p>
+</div>
+<div id="p8" class="ltx_para">
+<p id="p8.1" class="ltx_p">We then applied dropout to TIMIT, a widely used benchmark for recognition of clean speech
+with a small vocabulary. Speech recognition systems use hidden Markov models (HMMs) to
+deal with temporal variability and they need an acoustic model that determines how well a
+frame of coefficients extracted from the acoustic input fits each possible state of each
+hidden Markov model. Recently, deep, pre-trained, feedforward neural networks that map a
+short sequence of frames into a probability distribution over HMM states have been shown
+to outperform tradional Gaussian mixture models on both TIMIT  (<span id="p8.1.1" class="ltx_text ltx_font_bold">?</span>) and a
+variety of more realistic large vocabulary tasks  (<span id="p8.1.2" class="ltx_text ltx_font_bold">?</span><span id="p8.1.3" class="ltx_text ltx_font_italic">, </span><span id="p8.1.4" class="ltx_text ltx_font_bold">?</span>).</p>
+</div>
+<div id="p9" class="ltx_para">
+<p id="p9.2" class="ltx_p">Figure <a href="1207.0580v1.html#S0.F2" title="Figure 2 ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">2</span></a> shows the frame <span id="p9.2.1" class="ltx_text ltx_font_italic">classification</span> error rate on the core test set of the
+TIMIT benchmark when the central frame of a window is classified as belonging to the HMM
+state that is given the highest probability by the neural net. The input to the net is
+21 adjacent frames with an advance of 10ms per frame. The neural net has 4 fully-connected
+hidden layers of 4000 units per layer and 185 “softmax” output units that are subsequently
+merged into the 39 distinct classes used for the benchmark. Dropout of 50% of the hidden
+units significantly improves classification for a variety of different network
+architectures (see figure <a href="1207.0580v1.html#S0.F2" title="Figure 2 ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">2</span></a>). To get the frame <span id="p9.2.2" class="ltx_text ltx_font_italic">recognition</span> rate, the class
+probabilities that the neural network outputs for each frame are given to a decoder which
+knows about transition probabilities between HMM states and runs the Viterbi algorithm to
+infer the single best sequence of HMM states. Without dropout, the recognition rate is
+<math id="p9.1.m1.1" class="ltx_Math" alttext="22.7" display="inline"><semantics id="p9.1.m1.1a"><mn id="p9.1.m1.1.1" xref="p9.1.m1.1.1.cmml">22.7</mn><annotation-xml encoding="MathML-Content" id="p9.1.m1.1b"><cn type="float" id="p9.1.m1.1.1.cmml" xref="p9.1.m1.1.1">22.7</cn></annotation-xml><annotation encoding="application/x-tex" id="p9.1.m1.1c">22.7</annotation></semantics></math>% and with dropout this improves to <math id="p9.2.m2.1" class="ltx_Math" alttext="19.7" display="inline"><semantics id="p9.2.m2.1a"><mn id="p9.2.m2.1.1" xref="p9.2.m2.1.1.cmml">19.7</mn><annotation-xml encoding="MathML-Content" id="p9.2.m2.1b"><cn type="float" id="p9.2.m2.1.1.cmml" xref="p9.2.m2.1.1">19.7</cn></annotation-xml><annotation encoding="application/x-tex" id="p9.2.m2.1c">19.7</annotation></semantics></math>%, which is a record for methods that do not use
+any information about speaker identity.</p>
+</div>
+<figure id="S0.F2" class="ltx_figure">
+<p id="S0.F2.1" class="ltx_p ltx_align_center"><span id="S0.F2.1.1" class="ltx_text"><img src="1207.0580/assets/timit.png" id="S0.F2.1.1.g1" class="ltx_graphics ltx_img_square" width="348" height="292" alt="Refer to caption"></span></p>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 2: </span>The frame <span id="S0.F2.3.1" class="ltx_text ltx_font_italic">classification</span> error rate on the core test set of the TIMIT
+benchmark. Comparison of standard and dropout finetuning for different network
+architectures. Dropout of 50% of the hidden
+units and 20% of the input units improves classification.</figcaption>
+</figure>
+<div id="p10" class="ltx_para">
+<p id="p10.1" class="ltx_p">CIFAR-10 is a benchmark task for object recognition. It uses 32x32 downsampled color
+images of 10 different object classes that were found by searching the web for the names
+of the class (e.g. dog) or its subclasses (e.g. Golden Retriever). These images were
+labeled by hand to produce 50,000 training images and 10,000 test images in which there is
+a single dominant object that could plausibly be given the class name  (<span id="p10.1.1" class="ltx_text ltx_font_bold">?</span>) (see
+figure <a href="1207.0580v1.html#S0.F3" title="Figure 3 ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">3</span></a>). The best published error rate on the test set, without using
+transformed data, is 18.5%  (<span id="p10.1.2" class="ltx_text ltx_font_bold">?</span>). We achieved an error rate of 16.6% by using a
+neural network with three convolutional hidden layers interleaved with three
+“max-pooling” layers that report the maximum activity in local pools of convolutional
+units. These six layers were followed by one locally-connected layer (For details see Appendix <a href="1207.0580v1.html#A4" title="Appendix D Tiny Images and CIFAR-10 ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">D</span></a>) . Using
+dropout in the last hidden layer gives an error rate of 15.6%.</p>
+</div>
+<figure id="S0.F3" class="ltx_figure">
+<p id="S0.F3.1" class="ltx_p ltx_align_center"><span id="S0.F3.1.1" class="ltx_text"><img src="1207.0580/assets/birds-10.png" id="S0.F3.1.1.g1" class="ltx_graphics ltx_img_landscape" width="340" height="34" alt="Refer to caption"></span></p>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 3: </span>Ten examples of the class “bird” from the CIFAR-10 test set illustrating the
+variety of types of bird, viewpoint, lighting and background. The neural net gets all
+but the last two examples correct.</figcaption>
+</figure>
+<div id="p11" class="ltx_para">
+<p id="p11.1" class="ltx_p">ImageNet is an extremely challenging object recognition dataset consisting of thousands of
+high-resolution images of thousands of classes of object  (<span id="p11.1.1" class="ltx_text ltx_font_bold">?</span>). In 2010, a
+subset of 1000 classes with roughly 1000 examples per class was the basis of an object
+recognition competition in which the winning entry, which was actually an average of six
+separate models, achieved an error rate of 47.2% on the test set. The current state-of-the-art
+result on this dataset is 45.7%  (<span id="p11.1.2" class="ltx_text ltx_font_bold">?</span>). We achieved comparable performance of
+48.6% error using a single neural
+network with five convolutional hidden layers interleaved with “max-pooling”
+layer followed by two globally connected layers and a final
+1000-way softmax layer. All layers had L2 weight constraints on the incoming weights of
+each hidden unit. Using 50% dropout in the sixth hidden layer reduces this to a record
+42.4% (For details see Appendix <a href="1207.0580v1.html#A5" title="Appendix E ImageNet ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">E</span></a>).</p>
+</div>
+<figure id="S0.F4" class="ltx_figure">
+<p id="S0.F4.1" class="ltx_p ltx_align_center"><span id="S0.F4.1.1" class="ltx_text"><img src="1207.0580/assets/imagenet-examples2.png" id="S0.F4.1.1.g1" class="ltx_graphics ltx_img_landscape" width="262" height="105" alt="Refer to caption"></span></p>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 4: </span>Some Imagenet test cases with the probabilities of the best 5 labels
+underneath. Many of the top 5 labels are quite plausible.</figcaption>
+</figure>
+<div id="p12" class="ltx_para">
+<p id="p12.1" class="ltx_p">For the speech recognition dataset and both of the object recognition datasets it is
+necessary to make a large number of decisions in designing the architecture of the net. We
+made these decisions by holding out a separate validation set that was used to evaluate
+the performance of a large number of different architectures and we then used the
+architecture that performed best with dropout on the validation set to assess the
+performance of dropout on the real test set.</p>
+</div>
+<div id="p13" class="ltx_para">
+<p id="p13.2" class="ltx_p">The Reuters dataset contains documents that have been labeled with a hierarchy of
+classes. We created training and test sets each containing 201,369 documents from 50 mutually
+exclusive classes. Each document was represented by a vector of counts for 2000 common
+non-stop words, with each count <math id="p13.1.m1.1" class="ltx_Math" alttext="C" display="inline"><semantics id="p13.1.m1.1a"><mi id="p13.1.m1.1.1" xref="p13.1.m1.1.1.cmml">C</mi><annotation-xml encoding="MathML-Content" id="p13.1.m1.1b"><ci id="p13.1.m1.1.1.cmml" xref="p13.1.m1.1.1">𝐶</ci></annotation-xml><annotation encoding="application/x-tex" id="p13.1.m1.1c">C</annotation></semantics></math> being transformed to <math id="p13.2.m2.2" class="ltx_Math" alttext="\log(1+C)" display="inline"><semantics id="p13.2.m2.2a"><mrow id="p13.2.m2.2.2.1" xref="p13.2.m2.2.2.2.cmml"><mi id="p13.2.m2.1.1" xref="p13.2.m2.1.1.cmml">log</mi><mo id="p13.2.m2.2.2.1a" xref="p13.2.m2.2.2.2.cmml">⁡</mo><mrow id="p13.2.m2.2.2.1.1" xref="p13.2.m2.2.2.2.cmml"><mo stretchy="false" id="p13.2.m2.2.2.1.1.2" xref="p13.2.m2.2.2.2.cmml">(</mo><mrow id="p13.2.m2.2.2.1.1.1" xref="p13.2.m2.2.2.1.1.1.cmml"><mn id="p13.2.m2.2.2.1.1.1.2" xref="p13.2.m2.2.2.1.1.1.2.cmml">1</mn><mo id="p13.2.m2.2.2.1.1.1.1" xref="p13.2.m2.2.2.1.1.1.1.cmml">+</mo><mi id="p13.2.m2.2.2.1.1.1.3" xref="p13.2.m2.2.2.1.1.1.3.cmml">C</mi></mrow><mo stretchy="false" id="p13.2.m2.2.2.1.1.3" xref="p13.2.m2.2.2.2.cmml">)</mo></mrow></mrow><annotation-xml encoding="MathML-Content" id="p13.2.m2.2b"><apply id="p13.2.m2.2.2.2.cmml" xref="p13.2.m2.2.2.1"><log id="p13.2.m2.1.1.cmml" xref="p13.2.m2.1.1"></log><apply id="p13.2.m2.2.2.1.1.1.cmml" xref="p13.2.m2.2.2.1.1.1"><plus id="p13.2.m2.2.2.1.1.1.1.cmml" xref="p13.2.m2.2.2.1.1.1.1"></plus><cn type="integer" id="p13.2.m2.2.2.1.1.1.2.cmml" xref="p13.2.m2.2.2.1.1.1.2">1</cn><ci id="p13.2.m2.2.2.1.1.1.3.cmml" xref="p13.2.m2.2.2.1.1.1.3">𝐶</ci></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="p13.2.m2.2c">\log(1+C)</annotation></semantics></math>. A feedforward neural
+network with 2 fully connected layers of 2000 hidden units trained with backpropagation
+gets 31.05% error on the test set. This is reduced to 29.62% by using 50% dropout (Appendix <a href="1207.0580v1.html#A3" title="Appendix C Experiments on Reuters ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">C</span></a>).</p>
+</div>
+<div id="p14" class="ltx_para">
+<p id="p14.1" class="ltx_p">We have tried various dropout probabilities and almost all of them improve the
+generalization performance of the network. For fully connected layers, dropout in all
+hidden layers works better than dropout in only one hidden layer and more extreme
+probabilities tend to be worse, which is why we have used 0.5 throughout this paper. For
+the inputs, dropout can also help, though it it often better to retain more than 50% of
+the inputs. It is also possible to adapt the individual dropout probability of each hidden
+or input unit by comparing the average performance on a validation set with the average
+performance when the unit is present. This makes the method work slightly
+better. For datasets in which the required input-output mapping has a
+number of fairly different regimes, performance can probably be further improved by making
+the dropout probabilities be a learned function of the input, thus creating a
+statistically efficient “mixture of experts”  (<span id="p14.1.1" class="ltx_text ltx_font_bold">?</span>) in which there are
+combinatorially many experts, but each parameter gets adapted on a large fraction of the
+training data.</p>
+</div>
+<div id="p15" class="ltx_para">
+<p id="p15.1" class="ltx_p">Dropout is considerably simpler to implement than Bayesian model averaging which weights
+each model by its posterior probability given the training data. For complicated model
+classes, like feedforward neural networks, Bayesian methods typically use a Markov chain
+Monte Carlo method to sample models from the posterior distribution  (<span id="p15.1.1" class="ltx_text ltx_font_bold">?</span>). By
+contrast, dropout with a probability of <math id="p15.1.m1.1" class="ltx_Math" alttext="0.5" display="inline"><semantics id="p15.1.m1.1a"><mn id="p15.1.m1.1.1" xref="p15.1.m1.1.1.cmml">0.5</mn><annotation-xml encoding="MathML-Content" id="p15.1.m1.1b"><cn type="float" id="p15.1.m1.1.1.cmml" xref="p15.1.m1.1.1">0.5</cn></annotation-xml><annotation encoding="application/x-tex" id="p15.1.m1.1c">0.5</annotation></semantics></math> assumes that all the models will eventually
+be given equal importance in the combination but the learning of the shared weights takes
+this into account. At test time, the fact that the dropout decisions are independent for
+each unit makes it very easy to approximate the combined opinions of exponentially many
+dropout nets by using a single pass through the mean net. This is far more efficient than
+averaging the predictions of many separate models.</p>
+</div>
+<div id="p16" class="ltx_para">
+<p id="p16.1" class="ltx_p">A popular alternative to Bayesian model averaging is “bagging” in which different models
+are trained on different random selections of cases from the training set and all models
+are given equal weight in the combination  (<span id="p16.1.1" class="ltx_text ltx_font_bold">?</span>). Bagging is most often used with
+models such as decision trees because these are very quick to fit to data and very quick
+at test time (<span id="p16.1.2" class="ltx_text ltx_font_bold">?</span>). Dropout allows a similar approach to be applied to feedforward
+neural networks which are much more powerful models. Dropout can be seen as an extreme
+form of bagging in which each model is trained on a single case and each parameter of the
+model is very strongly regularized by sharing it with the corresponding parameter in all
+the other models. This is a much better regularizer than the standard method of shrinking
+parameters towards zero.</p>
+</div>
+<div id="p17" class="ltx_para">
+<p id="p17.1" class="ltx_p">A familiar and extreme case of dropout is “naive bayes” in which each input feature is
+trained separately to predict the class label and then the predictive distributions of all
+the features are multiplied together at test time. When there is very little training
+data, this often works much better than logistic classification which trains each input
+feature to work well in the context of all the other features.</p>
+</div>
+<div id="p18" class="ltx_para">
+<p id="p18.1" class="ltx_p">Finally, there is an intriguing similarity between dropout and a recent theory
+of the role of sex in evolution  (<span id="p18.1.1" class="ltx_text ltx_font_bold">?</span>). One possible interpretation of the
+theory of mixability articulated in  (<span id="p18.1.2" class="ltx_text ltx_font_italic">?</span>) is that sex breaks up sets of
+co-adapted genes and this means that achieving a function by using a large set
+of co-adapted genes is not nearly as robust as achieving the same function,
+perhaps less than optimally, in multiple alternative ways, each of which only
+uses a small number of co-adapted genes. This allows evolution to avoid
+dead-ends in which improvements in fitness require co- ordinated changes to a
+large number of co-adapted genes. It also reduces the probability that small
+changes in the environment will cause large decreases in fitness – a phenomenon
+which is known as “overfitting” in the field of machine learning.</p>
+</div>
+<section id="bib" class="ltx_bibliography">
+<h2 class="ltx_title ltx_title_bibliography">References and Notes</h2>
+
+<ul class="ltx_biblist">
+<li id="bib.bib1" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">1.</span>
+<span class="ltx_bibblock">
+D. E. Rumelhart, G. E. Hinton, R. J. Williams, <span id="bib.bib1.1.1" class="ltx_text ltx_font_italic">Nature</span> <span id="bib.bib1.2.2" class="ltx_text ltx_font_bold">323</span>, 533
+(1986).
+
+</span>
+</li>
+<li id="bib.bib2" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">2.</span>
+<span class="ltx_bibblock">
+G. E. Hinton, <span id="bib.bib2.1.1" class="ltx_text ltx_font_italic">Neural Computation</span> <span id="bib.bib2.2.2" class="ltx_text ltx_font_bold">14</span>, 1771 (2002).
+
+</span>
+</li>
+<li id="bib.bib3" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">3.</span>
+<span class="ltx_bibblock">
+L. M. G. D. C. Ciresan, U. Meier, J. Schmidhuber, <span id="bib.bib3.1.1" class="ltx_text ltx_font_italic">Neural Computation</span>
+<span id="bib.bib3.2.2" class="ltx_text ltx_font_bold">22</span>, 3207 (2010).
+
+</span>
+</li>
+<li id="bib.bib4" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">4.</span>
+<span class="ltx_bibblock">
+Y. B. Y. Lecun, L. Bottou, P. Haffner, <span id="bib.bib4.1.1" class="ltx_text ltx_font_italic">Proceedings of the IEEE</span> <span id="bib.bib4.2.2" class="ltx_text ltx_font_bold">86</span>, 2278 (1998).
+
+</span>
+</li>
+<li id="bib.bib5" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">5.</span>
+<span class="ltx_bibblock">
+G. E. Hinton, R. Salakhutdinov, <span id="bib.bib5.1.1" class="ltx_text ltx_font_italic">Science</span> <span id="bib.bib5.2.2" class="ltx_text ltx_font_bold">313</span>, 504 (2006).
+
+</span>
+</li>
+<li id="bib.bib6" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">6.</span>
+<span class="ltx_bibblock">
+A. Mohamed, G. Dahl, G. Hinton, <span id="bib.bib6.1.1" class="ltx_text ltx_font_italic">IEEE Transactions on Audio, Speech, and
+Language Processing,</span> <span id="bib.bib6.2.2" class="ltx_text ltx_font_bold">20</span>, 14 (2012).
+
+</span>
+</li>
+<li id="bib.bib7" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">7.</span>
+<span class="ltx_bibblock">
+G. Dahl, D. Yu, L. Deng, A. Acero, <span id="bib.bib7.1.1" class="ltx_text ltx_font_italic">IEEE Transactions on Audio, Speech, and
+Language Processing,</span> <span id="bib.bib7.2.2" class="ltx_text ltx_font_bold">20</span>, 30 (2012).
+
+</span>
+</li>
+<li id="bib.bib8" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">8.</span>
+<span class="ltx_bibblock">
+N. Jaitly, P. Nguyen, A. Senior, V. Vanhoucke, An Application OF Pretrained
+Deep Neural Networks To Large Vocabulary Conversational Speech Recognition,
+<span id="bib.bib8.1.1" class="ltx_text ltx_font_italic">Tech. Rep. 001</span>, Department of Computer Science, University of Toronto
+(2012).
+
+</span>
+</li>
+<li id="bib.bib9" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">9.</span>
+<span class="ltx_bibblock">
+A. Krizhevsky, Learning multiple layers of features from tiny images, <span id="bib.bib9.1.1" class="ltx_text ltx_font_italic">Tech. Rep. 001</span>, Department of Computer Science, University of Toronto
+(2009).
+
+</span>
+</li>
+<li id="bib.bib10" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">10.</span>
+<span class="ltx_bibblock">
+A. Coates, A. Y. Ng, <span id="bib.bib10.1.1" class="ltx_text ltx_font_italic">ICML</span> (2011), pp. 921–928.
+
+</span>
+</li>
+<li id="bib.bib11" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">11.</span>
+<span class="ltx_bibblock">
+J. Deng, <span id="bib.bib11.1.1" class="ltx_text ltx_font_italic">et al.</span>, <span id="bib.bib11.2.2" class="ltx_text ltx_font_italic">CVPR09</span> (2009).
+
+</span>
+</li>
+<li id="bib.bib12" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">12.</span>
+<span class="ltx_bibblock">
+J. Sanchez, F. Perronnin, <span id="bib.bib12.1.1" class="ltx_text ltx_font_italic">CVPR11</span> (2011).
+
+</span>
+</li>
+<li id="bib.bib13" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">13.</span>
+<span class="ltx_bibblock">
+S. J. N. R. A. Jacobs, M. I. Jordan, G. E. Hinton, <span id="bib.bib13.1.1" class="ltx_text ltx_font_italic">Neural Computation</span>
+<span id="bib.bib13.2.2" class="ltx_text ltx_font_bold">3</span>, 79 (1991).
+
+</span>
+</li>
+<li id="bib.bib14" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">14.</span>
+<span class="ltx_bibblock">
+R. M. Neal, <span id="bib.bib14.1.1" class="ltx_text ltx_font_italic">Bayesian Learning for Neural Networks, Lecture Notes in
+Statistics No. 118</span> (Springer-Verlag, New York, 1996).
+
+</span>
+</li>
+<li id="bib.bib15" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">15.</span>
+<span class="ltx_bibblock">
+L. Breiman, <span id="bib.bib15.1.1" class="ltx_text ltx_font_italic">Machine Learning</span> <span id="bib.bib15.2.2" class="ltx_text ltx_font_bold">24</span>, 123 (1996).
+
+</span>
+</li>
+<li id="bib.bib16" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">16.</span>
+<span class="ltx_bibblock">
+L. Breiman, <span id="bib.bib16.1.1" class="ltx_text ltx_font_italic">Machine Learning</span> <span id="bib.bib16.2.2" class="ltx_text ltx_font_bold">45</span>, 5 (2001).
+
+</span>
+</li>
+<li id="bib.bib17" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">17.</span>
+<span class="ltx_bibblock">
+J. D. A. Livnat, C. Papadimitriou, M. W. Feldman, <span id="bib.bib17.1.1" class="ltx_text ltx_font_italic">PNAS</span> <span id="bib.bib17.2.2" class="ltx_text ltx_font_bold">105</span>,
+19803– (2008).
+
+</span>
+</li>
+<li id="bib.bib18" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">18.</span>
+<span class="ltx_bibblock">
+R. R. Salakhutdinov, G. E. Hinton, <span id="bib.bib18.1.1" class="ltx_text ltx_font_italic">Artificial Intelligence and
+Statistics</span> (2009).
+
+</span>
+</li>
+<li id="bib.bib19" class="ltx_bibitem">
+<span class="ltx_tag ltx_tag_bibitem">19.</span>
+<span class="ltx_bibblock">
+D. D. Lewis, T. G. R. Y. Yang, <span id="bib.bib19.1.1" class="ltx_text ltx_font_italic">Journal of Machine Learning</span> <span id="bib.bib19.2.2" class="ltx_text ltx_font_bold">5</span>, 361
+(2004).
+
+</span>
+</li>
+</ul>
+</section>
+<div id="p19" class="ltx_para">
+<ul id="p19.1" class="ltx_itemize">
+<li id="S0.I1.i1" class="ltx_item" style="list-style-type:none;">
+<span class="ltx_tag ltx_tag_item">1.</span> 
+<div id="S0.I1.i1.p1" class="ltx_para">
+<p id="S0.I1.i1.p1.1" class="ltx_p">We thank N. Jaitly for help with TIMIT, H. Larochelle, R. Neal, K. Swersky and C.K.I. Williams for
+helpful discussions, and NSERC, Google and Microsoft Research for
+funding. GEH and RRS are members of the Canadian Institute for Advanced Research.</p>
+</div>
+</li>
+</ul>
+</div>
+<section id="A1" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix A </span>Experiments on MNIST</h2>
+
+<section id="A1.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">A.1 </span>Details for dropout training</h3>
+
+<div id="A1.SS1.p1" class="ltx_para">
+<p id="A1.SS1.p1.5" class="ltx_p">The MNIST dataset consists of 28 <math id="A1.SS1.p1.1.m1.1" class="ltx_Math" alttext="\times" display="inline"><semantics id="A1.SS1.p1.1.m1.1a"><mo id="A1.SS1.p1.1.m1.1.1" xref="A1.SS1.p1.1.m1.1.1.cmml">×</mo><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.1.m1.1b"><times id="A1.SS1.p1.1.m1.1.1.cmml" xref="A1.SS1.p1.1.m1.1.1"></times></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.1.m1.1c">\times</annotation></semantics></math> 28 digit images - 60,000 for training and 10,000 for testing.
+The objective is to classify the digit images into their correct digit class.
+We experimented with neural nets of different architectures (different number of hidden units and
+layers) to evaluate the sensitivity of the dropout method to these choices. We show
+results for 4 nets (784-800-800-10, 784-1200-1200-10, 784-2000-2000-10,
+784-1200-1200-1200-10). For each of these architectures we use the same dropout
+rates - 50% dropout for all hidden units and 20% dropout for visible units.
+We use stochastic gradient descent with 100-sized minibatches and a cross-entropy objective function.
+An exponentially decaying learning rate is used
+that starts at the value of 10.0 (applied to the average gradient in each
+minibatch). The learning rate is multiplied by 0.998 after each epoch of
+training. The incoming weight vector corresponding to each hidden unit is constrained to have a
+maximum squared length of <math id="A1.SS1.p1.2.m2.1" class="ltx_Math" alttext="l" display="inline"><semantics id="A1.SS1.p1.2.m2.1a"><mi id="A1.SS1.p1.2.m2.1.1" xref="A1.SS1.p1.2.m2.1.1.cmml">l</mi><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.2.m2.1b"><ci id="A1.SS1.p1.2.m2.1.1.cmml" xref="A1.SS1.p1.2.m2.1.1">𝑙</ci></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.2.m2.1c">l</annotation></semantics></math>. If, as a result of an update, the squared length
+exceeds <math id="A1.SS1.p1.3.m3.1" class="ltx_Math" alttext="l" display="inline"><semantics id="A1.SS1.p1.3.m3.1a"><mi id="A1.SS1.p1.3.m3.1.1" xref="A1.SS1.p1.3.m3.1.1.cmml">l</mi><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.3.m3.1b"><ci id="A1.SS1.p1.3.m3.1.1.cmml" xref="A1.SS1.p1.3.m3.1.1">𝑙</ci></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.3.m3.1c">l</annotation></semantics></math>, the vector is scaled down so as to make it have a squared length of
+<math id="A1.SS1.p1.4.m4.1" class="ltx_Math" alttext="l" display="inline"><semantics id="A1.SS1.p1.4.m4.1a"><mi id="A1.SS1.p1.4.m4.1.1" xref="A1.SS1.p1.4.m4.1.1.cmml">l</mi><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.4.m4.1b"><ci id="A1.SS1.p1.4.m4.1.1.cmml" xref="A1.SS1.p1.4.m4.1.1">𝑙</ci></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.4.m4.1c">l</annotation></semantics></math>. Using cross validation we found that <math id="A1.SS1.p1.5.m5.1" class="ltx_Math" alttext="l=15" display="inline"><semantics id="A1.SS1.p1.5.m5.1a"><mrow id="A1.SS1.p1.5.m5.1.1" xref="A1.SS1.p1.5.m5.1.1.cmml"><mi id="A1.SS1.p1.5.m5.1.1.2" xref="A1.SS1.p1.5.m5.1.1.2.cmml">l</mi><mo id="A1.SS1.p1.5.m5.1.1.1" xref="A1.SS1.p1.5.m5.1.1.1.cmml">=</mo><mn id="A1.SS1.p1.5.m5.1.1.3" xref="A1.SS1.p1.5.m5.1.1.3.cmml">15</mn></mrow><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.5.m5.1b"><apply id="A1.SS1.p1.5.m5.1.1.cmml" xref="A1.SS1.p1.5.m5.1.1"><eq id="A1.SS1.p1.5.m5.1.1.1.cmml" xref="A1.SS1.p1.5.m5.1.1.1"></eq><ci id="A1.SS1.p1.5.m5.1.1.2.cmml" xref="A1.SS1.p1.5.m5.1.1.2">𝑙</ci><cn type="integer" id="A1.SS1.p1.5.m5.1.1.3.cmml" xref="A1.SS1.p1.5.m5.1.1.3">15</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.5.m5.1c">l=15</annotation></semantics></math> gave best results.
+Weights are initialzed to small random values drawn from a zero-mean normal distribution with
+standard deviation 0.01. Momentum is used to speed up learning. The momentum
+starts off at a value of 0.5 and is increased linearly to 0.99 over the first
+500 epochs, after which it stays at 0.99. Also, the learning rate is multiplied
+by a factor of (1-momentum). No weight decay is used.
+Weights were updated at the end of each minibatch.
+Training was done for 3000 epochs.
+The weight update takes the following form:</p>
+<table id="A8.EGx1" class="ltx_equationgroup ltx_eqn_eqnarray ltx_eqn_table">
+
+<tbody id="A1.Ex1"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="A1.Ex1.m1.1" class="ltx_Math" alttext="\displaystyle\Delta w^{t}" display="inline"><semantics id="A1.Ex1.m1.1a"><mrow id="A1.Ex1.m1.1.1" xref="A1.Ex1.m1.1.1.cmml"><mi mathvariant="normal" id="A1.Ex1.m1.1.1.2" xref="A1.Ex1.m1.1.1.2.cmml">Δ</mi><mo lspace="0em" rspace="0em" id="A1.Ex1.m1.1.1.1" xref="A1.Ex1.m1.1.1.1.cmml">​</mo><msup id="A1.Ex1.m1.1.1.3" xref="A1.Ex1.m1.1.1.3.cmml"><mi id="A1.Ex1.m1.1.1.3.2" xref="A1.Ex1.m1.1.1.3.2.cmml">w</mi><mi id="A1.Ex1.m1.1.1.3.3" xref="A1.Ex1.m1.1.1.3.3.cmml">t</mi></msup></mrow><annotation-xml encoding="MathML-Content" id="A1.Ex1.m1.1b"><apply id="A1.Ex1.m1.1.1.cmml" xref="A1.Ex1.m1.1.1"><times id="A1.Ex1.m1.1.1.1.cmml" xref="A1.Ex1.m1.1.1.1"></times><ci id="A1.Ex1.m1.1.1.2.cmml" xref="A1.Ex1.m1.1.1.2">Δ</ci><apply id="A1.Ex1.m1.1.1.3.cmml" xref="A1.Ex1.m1.1.1.3"><csymbol cd="ambiguous" id="A1.Ex1.m1.1.1.3.1.cmml" xref="A1.Ex1.m1.1.1.3">superscript</csymbol><ci id="A1.Ex1.m1.1.1.3.2.cmml" xref="A1.Ex1.m1.1.1.3.2">𝑤</ci><ci id="A1.Ex1.m1.1.1.3.3.cmml" xref="A1.Ex1.m1.1.1.3.3">𝑡</ci></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex1.m1.1c">\displaystyle\Delta w^{t}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_center ltx_eqn_cell"><math id="A1.Ex1.m2.1" class="ltx_Math" alttext="\displaystyle=" display="inline"><semantics id="A1.Ex1.m2.1a"><mo id="A1.Ex1.m2.1.1" xref="A1.Ex1.m2.1.1.cmml">=</mo><annotation-xml encoding="MathML-Content" id="A1.Ex1.m2.1b"><eq id="A1.Ex1.m2.1.1.cmml" xref="A1.Ex1.m2.1.1"></eq></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex1.m2.1c">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="A1.Ex1.m3.2" class="ltx_Math" alttext="\displaystyle p^{t}\Delta w^{t-1}-(1-p^{t})\epsilon^{t}\langle\nabla_{w}L\rangle" display="inline"><semantics id="A1.Ex1.m3.2a"><mrow id="A1.Ex1.m3.2.2" xref="A1.Ex1.m3.2.2.cmml"><mrow id="A1.Ex1.m3.2.2.4" xref="A1.Ex1.m3.2.2.4.cmml"><msup id="A1.Ex1.m3.2.2.4.2" xref="A1.Ex1.m3.2.2.4.2.cmml"><mi id="A1.Ex1.m3.2.2.4.2.2" xref="A1.Ex1.m3.2.2.4.2.2.cmml">p</mi><mi id="A1.Ex1.m3.2.2.4.2.3" xref="A1.Ex1.m3.2.2.4.2.3.cmml">t</mi></msup><mo lspace="0em" rspace="0em" id="A1.Ex1.m3.2.2.4.1" xref="A1.Ex1.m3.2.2.4.1.cmml">​</mo><mi mathvariant="normal" id="A1.Ex1.m3.2.2.4.3" xref="A1.Ex1.m3.2.2.4.3.cmml">Δ</mi><mo lspace="0em" rspace="0em" id="A1.Ex1.m3.2.2.4.1a" xref="A1.Ex1.m3.2.2.4.1.cmml">​</mo><msup id="A1.Ex1.m3.2.2.4.4" xref="A1.Ex1.m3.2.2.4.4.cmml"><mi id="A1.Ex1.m3.2.2.4.4.2" xref="A1.Ex1.m3.2.2.4.4.2.cmml">w</mi><mrow id="A1.Ex1.m3.2.2.4.4.3" xref="A1.Ex1.m3.2.2.4.4.3.cmml"><mi id="A1.Ex1.m3.2.2.4.4.3.2" xref="A1.Ex1.m3.2.2.4.4.3.2.cmml">t</mi><mo id="A1.Ex1.m3.2.2.4.4.3.1" xref="A1.Ex1.m3.2.2.4.4.3.1.cmml">−</mo><mn id="A1.Ex1.m3.2.2.4.4.3.3" xref="A1.Ex1.m3.2.2.4.4.3.3.cmml">1</mn></mrow></msup></mrow><mo id="A1.Ex1.m3.2.2.3" xref="A1.Ex1.m3.2.2.3.cmml">−</mo><mrow id="A1.Ex1.m3.2.2.2" xref="A1.Ex1.m3.2.2.2.cmml"><mrow id="A1.Ex1.m3.1.1.1.1.1" xref="A1.Ex1.m3.1.1.1.1.1.1.cmml"><mo stretchy="false" id="A1.Ex1.m3.1.1.1.1.1.2" xref="A1.Ex1.m3.1.1.1.1.1.1.cmml">(</mo><mrow id="A1.Ex1.m3.1.1.1.1.1.1" xref="A1.Ex1.m3.1.1.1.1.1.1.cmml"><mn id="A1.Ex1.m3.1.1.1.1.1.1.2" xref="A1.Ex1.m3.1.1.1.1.1.1.2.cmml">1</mn><mo id="A1.Ex1.m3.1.1.1.1.1.1.1" xref="A1.Ex1.m3.1.1.1.1.1.1.1.cmml">−</mo><msup id="A1.Ex1.m3.1.1.1.1.1.1.3" xref="A1.Ex1.m3.1.1.1.1.1.1.3.cmml"><mi id="A1.Ex1.m3.1.1.1.1.1.1.3.2" xref="A1.Ex1.m3.1.1.1.1.1.1.3.2.cmml">p</mi><mi id="A1.Ex1.m3.1.1.1.1.1.1.3.3" xref="A1.Ex1.m3.1.1.1.1.1.1.3.3.cmml">t</mi></msup></mrow><mo stretchy="false" id="A1.Ex1.m3.1.1.1.1.1.3" xref="A1.Ex1.m3.1.1.1.1.1.1.cmml">)</mo></mrow><mo lspace="0em" rspace="0em" id="A1.Ex1.m3.2.2.2.3" xref="A1.Ex1.m3.2.2.2.3.cmml">​</mo><msup id="A1.Ex1.m3.2.2.2.4" xref="A1.Ex1.m3.2.2.2.4.cmml"><mi id="A1.Ex1.m3.2.2.2.4.2" xref="A1.Ex1.m3.2.2.2.4.2.cmml">ϵ</mi><mi id="A1.Ex1.m3.2.2.2.4.3" xref="A1.Ex1.m3.2.2.2.4.3.cmml">t</mi></msup><mo lspace="0em" rspace="0em" id="A1.Ex1.m3.2.2.2.3a" xref="A1.Ex1.m3.2.2.2.3.cmml">​</mo><mrow id="A1.Ex1.m3.2.2.2.2.1" xref="A1.Ex1.m3.2.2.2.2.2.cmml"><mo stretchy="false" id="A1.Ex1.m3.2.2.2.2.1.2" xref="A1.Ex1.m3.2.2.2.2.2.1.cmml">⟨</mo><mrow id="A1.Ex1.m3.2.2.2.2.1.1" xref="A1.Ex1.m3.2.2.2.2.1.1.cmml"><msub id="A1.Ex1.m3.2.2.2.2.1.1.1" xref="A1.Ex1.m3.2.2.2.2.1.1.1.cmml"><mo rspace="0.167em" id="A1.Ex1.m3.2.2.2.2.1.1.1.2" xref="A1.Ex1.m3.2.2.2.2.1.1.1.2.cmml">∇</mo><mi id="A1.Ex1.m3.2.2.2.2.1.1.1.3" xref="A1.Ex1.m3.2.2.2.2.1.1.1.3.cmml">w</mi></msub><mi id="A1.Ex1.m3.2.2.2.2.1.1.2" xref="A1.Ex1.m3.2.2.2.2.1.1.2.cmml">L</mi></mrow><mo stretchy="false" id="A1.Ex1.m3.2.2.2.2.1.3" xref="A1.Ex1.m3.2.2.2.2.2.1.cmml">⟩</mo></mrow></mrow></mrow><annotation-xml encoding="MathML-Content" id="A1.Ex1.m3.2b"><apply id="A1.Ex1.m3.2.2.cmml" xref="A1.Ex1.m3.2.2"><minus id="A1.Ex1.m3.2.2.3.cmml" xref="A1.Ex1.m3.2.2.3"></minus><apply id="A1.Ex1.m3.2.2.4.cmml" xref="A1.Ex1.m3.2.2.4"><times id="A1.Ex1.m3.2.2.4.1.cmml" xref="A1.Ex1.m3.2.2.4.1"></times><apply id="A1.Ex1.m3.2.2.4.2.cmml" xref="A1.Ex1.m3.2.2.4.2"><csymbol cd="ambiguous" id="A1.Ex1.m3.2.2.4.2.1.cmml" xref="A1.Ex1.m3.2.2.4.2">superscript</csymbol><ci id="A1.Ex1.m3.2.2.4.2.2.cmml" xref="A1.Ex1.m3.2.2.4.2.2">𝑝</ci><ci id="A1.Ex1.m3.2.2.4.2.3.cmml" xref="A1.Ex1.m3.2.2.4.2.3">𝑡</ci></apply><ci id="A1.Ex1.m3.2.2.4.3.cmml" xref="A1.Ex1.m3.2.2.4.3">Δ</ci><apply id="A1.Ex1.m3.2.2.4.4.cmml" xref="A1.Ex1.m3.2.2.4.4"><csymbol cd="ambiguous" id="A1.Ex1.m3.2.2.4.4.1.cmml" xref="A1.Ex1.m3.2.2.4.4">superscript</csymbol><ci id="A1.Ex1.m3.2.2.4.4.2.cmml" xref="A1.Ex1.m3.2.2.4.4.2">𝑤</ci><apply id="A1.Ex1.m3.2.2.4.4.3.cmml" xref="A1.Ex1.m3.2.2.4.4.3"><minus id="A1.Ex1.m3.2.2.4.4.3.1.cmml" xref="A1.Ex1.m3.2.2.4.4.3.1"></minus><ci id="A1.Ex1.m3.2.2.4.4.3.2.cmml" xref="A1.Ex1.m3.2.2.4.4.3.2">𝑡</ci><cn type="integer" id="A1.Ex1.m3.2.2.4.4.3.3.cmml" xref="A1.Ex1.m3.2.2.4.4.3.3">1</cn></apply></apply></apply><apply id="A1.Ex1.m3.2.2.2.cmml" xref="A1.Ex1.m3.2.2.2"><times id="A1.Ex1.m3.2.2.2.3.cmml" xref="A1.Ex1.m3.2.2.2.3"></times><apply id="A1.Ex1.m3.1.1.1.1.1.1.cmml" xref="A1.Ex1.m3.1.1.1.1.1"><minus id="A1.Ex1.m3.1.1.1.1.1.1.1.cmml" xref="A1.Ex1.m3.1.1.1.1.1.1.1"></minus><cn type="integer" id="A1.Ex1.m3.1.1.1.1.1.1.2.cmml" xref="A1.Ex1.m3.1.1.1.1.1.1.2">1</cn><apply id="A1.Ex1.m3.1.1.1.1.1.1.3.cmml" xref="A1.Ex1.m3.1.1.1.1.1.1.3"><csymbol cd="ambiguous" id="A1.Ex1.m3.1.1.1.1.1.1.3.1.cmml" xref="A1.Ex1.m3.1.1.1.1.1.1.3">superscript</csymbol><ci id="A1.Ex1.m3.1.1.1.1.1.1.3.2.cmml" xref="A1.Ex1.m3.1.1.1.1.1.1.3.2">𝑝</ci><ci id="A1.Ex1.m3.1.1.1.1.1.1.3.3.cmml" xref="A1.Ex1.m3.1.1.1.1.1.1.3.3">𝑡</ci></apply></apply><apply id="A1.Ex1.m3.2.2.2.4.cmml" xref="A1.Ex1.m3.2.2.2.4"><csymbol cd="ambiguous" id="A1.Ex1.m3.2.2.2.4.1.cmml" xref="A1.Ex1.m3.2.2.2.4">superscript</csymbol><ci id="A1.Ex1.m3.2.2.2.4.2.cmml" xref="A1.Ex1.m3.2.2.2.4.2">italic-ϵ</ci><ci id="A1.Ex1.m3.2.2.2.4.3.cmml" xref="A1.Ex1.m3.2.2.2.4.3">𝑡</ci></apply><apply id="A1.Ex1.m3.2.2.2.2.2.cmml" xref="A1.Ex1.m3.2.2.2.2.1"><csymbol cd="latexml" id="A1.Ex1.m3.2.2.2.2.2.1.cmml" xref="A1.Ex1.m3.2.2.2.2.1.2">delimited-⟨⟩</csymbol><apply id="A1.Ex1.m3.2.2.2.2.1.1.cmml" xref="A1.Ex1.m3.2.2.2.2.1.1"><apply id="A1.Ex1.m3.2.2.2.2.1.1.1.cmml" xref="A1.Ex1.m3.2.2.2.2.1.1.1"><csymbol cd="ambiguous" id="A1.Ex1.m3.2.2.2.2.1.1.1.1.cmml" xref="A1.Ex1.m3.2.2.2.2.1.1.1">subscript</csymbol><ci id="A1.Ex1.m3.2.2.2.2.1.1.1.2.cmml" xref="A1.Ex1.m3.2.2.2.2.1.1.1.2">∇</ci><ci id="A1.Ex1.m3.2.2.2.2.1.1.1.3.cmml" xref="A1.Ex1.m3.2.2.2.2.1.1.1.3">𝑤</ci></apply><ci id="A1.Ex1.m3.2.2.2.2.1.1.2.cmml" xref="A1.Ex1.m3.2.2.2.2.1.1.2">𝐿</ci></apply></apply></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex1.m3.2c">\displaystyle p^{t}\Delta w^{t-1}-(1-p^{t})\epsilon^{t}\langle\nabla_{w}L\rangle</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="A1.Ex2"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="A1.Ex2.m1.1" class="ltx_Math" alttext="\displaystyle w^{t}" display="inline"><semantics id="A1.Ex2.m1.1a"><msup id="A1.Ex2.m1.1.1" xref="A1.Ex2.m1.1.1.cmml"><mi id="A1.Ex2.m1.1.1.2" xref="A1.Ex2.m1.1.1.2.cmml">w</mi><mi id="A1.Ex2.m1.1.1.3" xref="A1.Ex2.m1.1.1.3.cmml">t</mi></msup><annotation-xml encoding="MathML-Content" id="A1.Ex2.m1.1b"><apply id="A1.Ex2.m1.1.1.cmml" xref="A1.Ex2.m1.1.1"><csymbol cd="ambiguous" id="A1.Ex2.m1.1.1.1.cmml" xref="A1.Ex2.m1.1.1">superscript</csymbol><ci id="A1.Ex2.m1.1.1.2.cmml" xref="A1.Ex2.m1.1.1.2">𝑤</ci><ci id="A1.Ex2.m1.1.1.3.cmml" xref="A1.Ex2.m1.1.1.3">𝑡</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex2.m1.1c">\displaystyle w^{t}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_center ltx_eqn_cell"><math id="A1.Ex2.m2.1" class="ltx_Math" alttext="\displaystyle=" display="inline"><semantics id="A1.Ex2.m2.1a"><mo id="A1.Ex2.m2.1.1" xref="A1.Ex2.m2.1.1.cmml">=</mo><annotation-xml encoding="MathML-Content" id="A1.Ex2.m2.1b"><eq id="A1.Ex2.m2.1.1.cmml" xref="A1.Ex2.m2.1.1"></eq></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex2.m2.1c">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="A1.Ex2.m3.1" class="ltx_Math" alttext="\displaystyle w^{t-1}+\Delta w^{t}," display="inline"><semantics id="A1.Ex2.m3.1a"><mrow id="A1.Ex2.m3.1.1.1" xref="A1.Ex2.m3.1.1.1.1.cmml"><mrow id="A1.Ex2.m3.1.1.1.1" xref="A1.Ex2.m3.1.1.1.1.cmml"><msup id="A1.Ex2.m3.1.1.1.1.2" xref="A1.Ex2.m3.1.1.1.1.2.cmml"><mi id="A1.Ex2.m3.1.1.1.1.2.2" xref="A1.Ex2.m3.1.1.1.1.2.2.cmml">w</mi><mrow id="A1.Ex2.m3.1.1.1.1.2.3" xref="A1.Ex2.m3.1.1.1.1.2.3.cmml"><mi id="A1.Ex2.m3.1.1.1.1.2.3.2" xref="A1.Ex2.m3.1.1.1.1.2.3.2.cmml">t</mi><mo id="A1.Ex2.m3.1.1.1.1.2.3.1" xref="A1.Ex2.m3.1.1.1.1.2.3.1.cmml">−</mo><mn id="A1.Ex2.m3.1.1.1.1.2.3.3" xref="A1.Ex2.m3.1.1.1.1.2.3.3.cmml">1</mn></mrow></msup><mo id="A1.Ex2.m3.1.1.1.1.1" xref="A1.Ex2.m3.1.1.1.1.1.cmml">+</mo><mrow id="A1.Ex2.m3.1.1.1.1.3" xref="A1.Ex2.m3.1.1.1.1.3.cmml"><mi mathvariant="normal" id="A1.Ex2.m3.1.1.1.1.3.2" xref="A1.Ex2.m3.1.1.1.1.3.2.cmml">Δ</mi><mo lspace="0em" rspace="0em" id="A1.Ex2.m3.1.1.1.1.3.1" xref="A1.Ex2.m3.1.1.1.1.3.1.cmml">​</mo><msup id="A1.Ex2.m3.1.1.1.1.3.3" xref="A1.Ex2.m3.1.1.1.1.3.3.cmml"><mi id="A1.Ex2.m3.1.1.1.1.3.3.2" xref="A1.Ex2.m3.1.1.1.1.3.3.2.cmml">w</mi><mi id="A1.Ex2.m3.1.1.1.1.3.3.3" xref="A1.Ex2.m3.1.1.1.1.3.3.3.cmml">t</mi></msup></mrow></mrow><mo id="A1.Ex2.m3.1.1.1.2" xref="A1.Ex2.m3.1.1.1.1.cmml">,</mo></mrow><annotation-xml encoding="MathML-Content" id="A1.Ex2.m3.1b"><apply id="A1.Ex2.m3.1.1.1.1.cmml" xref="A1.Ex2.m3.1.1.1"><plus id="A1.Ex2.m3.1.1.1.1.1.cmml" xref="A1.Ex2.m3.1.1.1.1.1"></plus><apply id="A1.Ex2.m3.1.1.1.1.2.cmml" xref="A1.Ex2.m3.1.1.1.1.2"><csymbol cd="ambiguous" id="A1.Ex2.m3.1.1.1.1.2.1.cmml" xref="A1.Ex2.m3.1.1.1.1.2">superscript</csymbol><ci id="A1.Ex2.m3.1.1.1.1.2.2.cmml" xref="A1.Ex2.m3.1.1.1.1.2.2">𝑤</ci><apply id="A1.Ex2.m3.1.1.1.1.2.3.cmml" xref="A1.Ex2.m3.1.1.1.1.2.3"><minus id="A1.Ex2.m3.1.1.1.1.2.3.1.cmml" xref="A1.Ex2.m3.1.1.1.1.2.3.1"></minus><ci id="A1.Ex2.m3.1.1.1.1.2.3.2.cmml" xref="A1.Ex2.m3.1.1.1.1.2.3.2">𝑡</ci><cn type="integer" id="A1.Ex2.m3.1.1.1.1.2.3.3.cmml" xref="A1.Ex2.m3.1.1.1.1.2.3.3">1</cn></apply></apply><apply id="A1.Ex2.m3.1.1.1.1.3.cmml" xref="A1.Ex2.m3.1.1.1.1.3"><times id="A1.Ex2.m3.1.1.1.1.3.1.cmml" xref="A1.Ex2.m3.1.1.1.1.3.1"></times><ci id="A1.Ex2.m3.1.1.1.1.3.2.cmml" xref="A1.Ex2.m3.1.1.1.1.3.2">Δ</ci><apply id="A1.Ex2.m3.1.1.1.1.3.3.cmml" xref="A1.Ex2.m3.1.1.1.1.3.3"><csymbol cd="ambiguous" id="A1.Ex2.m3.1.1.1.1.3.3.1.cmml" xref="A1.Ex2.m3.1.1.1.1.3.3">superscript</csymbol><ci id="A1.Ex2.m3.1.1.1.1.3.3.2.cmml" xref="A1.Ex2.m3.1.1.1.1.3.3.2">𝑤</ci><ci id="A1.Ex2.m3.1.1.1.1.3.3.3.cmml" xref="A1.Ex2.m3.1.1.1.1.3.3.3">𝑡</ci></apply></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex2.m3.1c">\displaystyle w^{t-1}+\Delta w^{t},</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p id="A1.SS1.p1.11" class="ltx_p">where,</p>
+<table id="A8.EGx2" class="ltx_equationgroup ltx_eqn_eqnarray ltx_eqn_table">
+
+<tbody id="A1.Ex3"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="A1.Ex3.m1.1" class="ltx_Math" alttext="\displaystyle\epsilon^{t}" display="inline"><semantics id="A1.Ex3.m1.1a"><msup id="A1.Ex3.m1.1.1" xref="A1.Ex3.m1.1.1.cmml"><mi id="A1.Ex3.m1.1.1.2" xref="A1.Ex3.m1.1.1.2.cmml">ϵ</mi><mi id="A1.Ex3.m1.1.1.3" xref="A1.Ex3.m1.1.1.3.cmml">t</mi></msup><annotation-xml encoding="MathML-Content" id="A1.Ex3.m1.1b"><apply id="A1.Ex3.m1.1.1.cmml" xref="A1.Ex3.m1.1.1"><csymbol cd="ambiguous" id="A1.Ex3.m1.1.1.1.cmml" xref="A1.Ex3.m1.1.1">superscript</csymbol><ci id="A1.Ex3.m1.1.1.2.cmml" xref="A1.Ex3.m1.1.1.2">italic-ϵ</ci><ci id="A1.Ex3.m1.1.1.3.cmml" xref="A1.Ex3.m1.1.1.3">𝑡</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex3.m1.1c">\displaystyle\epsilon^{t}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_center ltx_eqn_cell"><math id="A1.Ex3.m2.1" class="ltx_Math" alttext="\displaystyle=" display="inline"><semantics id="A1.Ex3.m2.1a"><mo id="A1.Ex3.m2.1.1" xref="A1.Ex3.m2.1.1.cmml">=</mo><annotation-xml encoding="MathML-Content" id="A1.Ex3.m2.1b"><eq id="A1.Ex3.m2.1.1.cmml" xref="A1.Ex3.m2.1.1"></eq></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex3.m2.1c">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="A1.Ex3.m3.1" class="ltx_Math" alttext="\displaystyle\epsilon_{0}f^{t}" display="inline"><semantics id="A1.Ex3.m3.1a"><mrow id="A1.Ex3.m3.1.1" xref="A1.Ex3.m3.1.1.cmml"><msub id="A1.Ex3.m3.1.1.2" xref="A1.Ex3.m3.1.1.2.cmml"><mi id="A1.Ex3.m3.1.1.2.2" xref="A1.Ex3.m3.1.1.2.2.cmml">ϵ</mi><mn id="A1.Ex3.m3.1.1.2.3" xref="A1.Ex3.m3.1.1.2.3.cmml">0</mn></msub><mo lspace="0em" rspace="0em" id="A1.Ex3.m3.1.1.1" xref="A1.Ex3.m3.1.1.1.cmml">​</mo><msup id="A1.Ex3.m3.1.1.3" xref="A1.Ex3.m3.1.1.3.cmml"><mi id="A1.Ex3.m3.1.1.3.2" xref="A1.Ex3.m3.1.1.3.2.cmml">f</mi><mi id="A1.Ex3.m3.1.1.3.3" xref="A1.Ex3.m3.1.1.3.3.cmml">t</mi></msup></mrow><annotation-xml encoding="MathML-Content" id="A1.Ex3.m3.1b"><apply id="A1.Ex3.m3.1.1.cmml" xref="A1.Ex3.m3.1.1"><times id="A1.Ex3.m3.1.1.1.cmml" xref="A1.Ex3.m3.1.1.1"></times><apply id="A1.Ex3.m3.1.1.2.cmml" xref="A1.Ex3.m3.1.1.2"><csymbol cd="ambiguous" id="A1.Ex3.m3.1.1.2.1.cmml" xref="A1.Ex3.m3.1.1.2">subscript</csymbol><ci id="A1.Ex3.m3.1.1.2.2.cmml" xref="A1.Ex3.m3.1.1.2.2">italic-ϵ</ci><cn type="integer" id="A1.Ex3.m3.1.1.2.3.cmml" xref="A1.Ex3.m3.1.1.2.3">0</cn></apply><apply id="A1.Ex3.m3.1.1.3.cmml" xref="A1.Ex3.m3.1.1.3"><csymbol cd="ambiguous" id="A1.Ex3.m3.1.1.3.1.cmml" xref="A1.Ex3.m3.1.1.3">superscript</csymbol><ci id="A1.Ex3.m3.1.1.3.2.cmml" xref="A1.Ex3.m3.1.1.3.2">𝑓</ci><ci id="A1.Ex3.m3.1.1.3.3.cmml" xref="A1.Ex3.m3.1.1.3.3">𝑡</ci></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex3.m3.1c">\displaystyle\epsilon_{0}f^{t}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="A1.Ex4"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="A1.Ex4.m1.1" class="ltx_Math" alttext="\displaystyle p^{t}" display="inline"><semantics id="A1.Ex4.m1.1a"><msup id="A1.Ex4.m1.1.1" xref="A1.Ex4.m1.1.1.cmml"><mi id="A1.Ex4.m1.1.1.2" xref="A1.Ex4.m1.1.1.2.cmml">p</mi><mi id="A1.Ex4.m1.1.1.3" xref="A1.Ex4.m1.1.1.3.cmml">t</mi></msup><annotation-xml encoding="MathML-Content" id="A1.Ex4.m1.1b"><apply id="A1.Ex4.m1.1.1.cmml" xref="A1.Ex4.m1.1.1"><csymbol cd="ambiguous" id="A1.Ex4.m1.1.1.1.cmml" xref="A1.Ex4.m1.1.1">superscript</csymbol><ci id="A1.Ex4.m1.1.1.2.cmml" xref="A1.Ex4.m1.1.1.2">𝑝</ci><ci id="A1.Ex4.m1.1.1.3.cmml" xref="A1.Ex4.m1.1.1.3">𝑡</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex4.m1.1c">\displaystyle p^{t}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_center ltx_eqn_cell"><math id="A1.Ex4.m2.1" class="ltx_Math" alttext="\displaystyle=" display="inline"><semantics id="A1.Ex4.m2.1a"><mo id="A1.Ex4.m2.1.1" xref="A1.Ex4.m2.1.1.cmml">=</mo><annotation-xml encoding="MathML-Content" id="A1.Ex4.m2.1b"><eq id="A1.Ex4.m2.1.1.cmml" xref="A1.Ex4.m2.1.1"></eq></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex4.m2.1c">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="A1.Ex4.m3.4" class="ltx_Math" alttext="\displaystyle\begin{cases}\frac{t}{T}p_{i}+(1-\frac{t}{T})p_{f}&amp;t&lt;T\\
+p_{f}&amp;t\geq T\end{cases}" display="inline"><semantics id="A1.Ex4.m3.4a"><mrow id="A1.Ex4.m3.4.4a" xref="A1.Ex4.m3.4.5.1.cmml"><mo id="A1.Ex4.m3.4.4a.5" xref="A1.Ex4.m3.4.5.1.1.cmml">{</mo><mtable columnspacing="5pt" rowspacing="0pt" id="A1.Ex4.m3.4.4.4a" xref="A1.Ex4.m3.4.5.1.cmml"><mtr id="A1.Ex4.m3.4.4.4aa" xref="A1.Ex4.m3.4.5.1.cmml"><mtd class="ltx_align_left" columnalign="left" id="A1.Ex4.m3.4.4.4ab" xref="A1.Ex4.m3.4.5.1.cmml"><mrow id="A1.Ex4.m3.1.1.1.1.1.1" xref="A1.Ex4.m3.1.1.1.1.1.1.cmml"><mrow id="A1.Ex4.m3.1.1.1.1.1.1.3" xref="A1.Ex4.m3.1.1.1.1.1.1.3.cmml"><mfrac id="A1.Ex4.m3.1.1.1.1.1.1.3.2" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2.cmml"><mi id="A1.Ex4.m3.1.1.1.1.1.1.3.2.2" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2.2.cmml">t</mi><mi id="A1.Ex4.m3.1.1.1.1.1.1.3.2.3" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2.3.cmml">T</mi></mfrac><mo lspace="0em" rspace="0em" id="A1.Ex4.m3.1.1.1.1.1.1.3.1" xref="A1.Ex4.m3.1.1.1.1.1.1.3.1.cmml">​</mo><msub id="A1.Ex4.m3.1.1.1.1.1.1.3.3" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3.cmml"><mi id="A1.Ex4.m3.1.1.1.1.1.1.3.3.2" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3.2.cmml">p</mi><mi id="A1.Ex4.m3.1.1.1.1.1.1.3.3.3" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3.3.cmml">i</mi></msub></mrow><mo id="A1.Ex4.m3.1.1.1.1.1.1.2" xref="A1.Ex4.m3.1.1.1.1.1.1.2.cmml">+</mo><mrow id="A1.Ex4.m3.1.1.1.1.1.1.1" xref="A1.Ex4.m3.1.1.1.1.1.1.1.cmml"><mrow id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.cmml"><mo stretchy="false" id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.2" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.cmml">(</mo><mrow id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.cmml"><mn id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.2" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.2.cmml">1</mn><mo id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.1" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.1.cmml">−</mo><mfrac id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.cmml"><mi id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.2" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.2.cmml">t</mi><mi id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.3" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.3.cmml">T</mi></mfrac></mrow><mo stretchy="false" id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.3" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.cmml">)</mo></mrow><mo lspace="0em" rspace="0em" id="A1.Ex4.m3.1.1.1.1.1.1.1.2" xref="A1.Ex4.m3.1.1.1.1.1.1.1.2.cmml">​</mo><msub id="A1.Ex4.m3.1.1.1.1.1.1.1.3" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3.cmml"><mi id="A1.Ex4.m3.1.1.1.1.1.1.1.3.2" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3.2.cmml">p</mi><mi id="A1.Ex4.m3.1.1.1.1.1.1.1.3.3" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3.3.cmml">f</mi></msub></mrow></mrow></mtd><mtd class="ltx_align_left" columnalign="left" id="A1.Ex4.m3.4.4.4ac" xref="A1.Ex4.m3.4.5.1.cmml"><mrow id="A1.Ex4.m3.2.2.2.2.2.1" xref="A1.Ex4.m3.2.2.2.2.2.1.cmml"><mi id="A1.Ex4.m3.2.2.2.2.2.1.2" xref="A1.Ex4.m3.2.2.2.2.2.1.2.cmml">t</mi><mo id="A1.Ex4.m3.2.2.2.2.2.1.1" xref="A1.Ex4.m3.2.2.2.2.2.1.1.cmml">&lt;</mo><mi id="A1.Ex4.m3.2.2.2.2.2.1.3" xref="A1.Ex4.m3.2.2.2.2.2.1.3.cmml">T</mi></mrow></mtd></mtr><mtr id="A1.Ex4.m3.4.4.4ad" xref="A1.Ex4.m3.4.5.1.cmml"><mtd class="ltx_align_left" columnalign="left" id="A1.Ex4.m3.4.4.4ae" xref="A1.Ex4.m3.4.5.1.cmml"><msub id="A1.Ex4.m3.3.3.3.3.1.1" xref="A1.Ex4.m3.3.3.3.3.1.1.cmml"><mi id="A1.Ex4.m3.3.3.3.3.1.1.2" xref="A1.Ex4.m3.3.3.3.3.1.1.2.cmml">p</mi><mi id="A1.Ex4.m3.3.3.3.3.1.1.3" xref="A1.Ex4.m3.3.3.3.3.1.1.3.cmml">f</mi></msub></mtd><mtd class="ltx_align_left" columnalign="left" id="A1.Ex4.m3.4.4.4af" xref="A1.Ex4.m3.4.5.1.cmml"><mrow id="A1.Ex4.m3.4.4.4.4.2.1" xref="A1.Ex4.m3.4.4.4.4.2.1.cmml"><mi id="A1.Ex4.m3.4.4.4.4.2.1.2" xref="A1.Ex4.m3.4.4.4.4.2.1.2.cmml">t</mi><mo id="A1.Ex4.m3.4.4.4.4.2.1.1" xref="A1.Ex4.m3.4.4.4.4.2.1.1.cmml">≥</mo><mi id="A1.Ex4.m3.4.4.4.4.2.1.3" xref="A1.Ex4.m3.4.4.4.4.2.1.3.cmml">T</mi></mrow></mtd></mtr></mtable></mrow><annotation-xml encoding="MathML-Content" id="A1.Ex4.m3.4b"><apply id="A1.Ex4.m3.4.5.1.cmml" xref="A1.Ex4.m3.4.4a"><csymbol cd="latexml" id="A1.Ex4.m3.4.5.1.1.cmml" xref="A1.Ex4.m3.4.4a.5">cases</csymbol><apply id="A1.Ex4.m3.1.1.1.1.1.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1"><plus id="A1.Ex4.m3.1.1.1.1.1.1.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.2"></plus><apply id="A1.Ex4.m3.1.1.1.1.1.1.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3"><times id="A1.Ex4.m3.1.1.1.1.1.1.3.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.1"></times><apply id="A1.Ex4.m3.1.1.1.1.1.1.3.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2"><divide id="A1.Ex4.m3.1.1.1.1.1.1.3.2.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2"></divide><ci id="A1.Ex4.m3.1.1.1.1.1.1.3.2.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2.2">𝑡</ci><ci id="A1.Ex4.m3.1.1.1.1.1.1.3.2.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.2.3">𝑇</ci></apply><apply id="A1.Ex4.m3.1.1.1.1.1.1.3.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3"><csymbol cd="ambiguous" id="A1.Ex4.m3.1.1.1.1.1.1.3.3.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3">subscript</csymbol><ci id="A1.Ex4.m3.1.1.1.1.1.1.3.3.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3.2">𝑝</ci><ci id="A1.Ex4.m3.1.1.1.1.1.1.3.3.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.3.3.3">𝑖</ci></apply></apply><apply id="A1.Ex4.m3.1.1.1.1.1.1.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1"><times id="A1.Ex4.m3.1.1.1.1.1.1.1.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.2"></times><apply id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1"><minus id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.1"></minus><cn type="integer" id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.2">1</cn><apply id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3"><divide id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3"></divide><ci id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.2">𝑡</ci><ci id="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.1.1.1.3.3">𝑇</ci></apply></apply><apply id="A1.Ex4.m3.1.1.1.1.1.1.1.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3"><csymbol cd="ambiguous" id="A1.Ex4.m3.1.1.1.1.1.1.1.3.1.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3">subscript</csymbol><ci id="A1.Ex4.m3.1.1.1.1.1.1.1.3.2.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3.2">𝑝</ci><ci id="A1.Ex4.m3.1.1.1.1.1.1.1.3.3.cmml" xref="A1.Ex4.m3.1.1.1.1.1.1.1.3.3">𝑓</ci></apply></apply></apply><apply id="A1.Ex4.m3.2.2.2.2.2.1.cmml" xref="A1.Ex4.m3.2.2.2.2.2.1"><lt id="A1.Ex4.m3.2.2.2.2.2.1.1.cmml" xref="A1.Ex4.m3.2.2.2.2.2.1.1"></lt><ci id="A1.Ex4.m3.2.2.2.2.2.1.2.cmml" xref="A1.Ex4.m3.2.2.2.2.2.1.2">𝑡</ci><ci id="A1.Ex4.m3.2.2.2.2.2.1.3.cmml" xref="A1.Ex4.m3.2.2.2.2.2.1.3">𝑇</ci></apply><apply id="A1.Ex4.m3.3.3.3.3.1.1.cmml" xref="A1.Ex4.m3.3.3.3.3.1.1"><csymbol cd="ambiguous" id="A1.Ex4.m3.3.3.3.3.1.1.1.cmml" xref="A1.Ex4.m3.3.3.3.3.1.1">subscript</csymbol><ci id="A1.Ex4.m3.3.3.3.3.1.1.2.cmml" xref="A1.Ex4.m3.3.3.3.3.1.1.2">𝑝</ci><ci id="A1.Ex4.m3.3.3.3.3.1.1.3.cmml" xref="A1.Ex4.m3.3.3.3.3.1.1.3">𝑓</ci></apply><apply id="A1.Ex4.m3.4.4.4.4.2.1.cmml" xref="A1.Ex4.m3.4.4.4.4.2.1"><geq id="A1.Ex4.m3.4.4.4.4.2.1.1.cmml" xref="A1.Ex4.m3.4.4.4.4.2.1.1"></geq><ci id="A1.Ex4.m3.4.4.4.4.2.1.2.cmml" xref="A1.Ex4.m3.4.4.4.4.2.1.2">𝑡</ci><ci id="A1.Ex4.m3.4.4.4.4.2.1.3.cmml" xref="A1.Ex4.m3.4.4.4.4.2.1.3">𝑇</ci></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.Ex4.m3.4c">\displaystyle\begin{cases}\frac{t}{T}p_{i}+(1-\frac{t}{T})p_{f}&amp;t&lt;T\\
+p_{f}&amp;t\geq T\end{cases}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p id="A1.SS1.p1.10" class="ltx_p">with <math id="A1.SS1.p1.6.m1.1" class="ltx_Math" alttext="\epsilon_{0}=10.0" display="inline"><semantics id="A1.SS1.p1.6.m1.1a"><mrow id="A1.SS1.p1.6.m1.1.1" xref="A1.SS1.p1.6.m1.1.1.cmml"><msub id="A1.SS1.p1.6.m1.1.1.2" xref="A1.SS1.p1.6.m1.1.1.2.cmml"><mi id="A1.SS1.p1.6.m1.1.1.2.2" xref="A1.SS1.p1.6.m1.1.1.2.2.cmml">ϵ</mi><mn id="A1.SS1.p1.6.m1.1.1.2.3" xref="A1.SS1.p1.6.m1.1.1.2.3.cmml">0</mn></msub><mo id="A1.SS1.p1.6.m1.1.1.1" xref="A1.SS1.p1.6.m1.1.1.1.cmml">=</mo><mn id="A1.SS1.p1.6.m1.1.1.3" xref="A1.SS1.p1.6.m1.1.1.3.cmml">10.0</mn></mrow><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.6.m1.1b"><apply id="A1.SS1.p1.6.m1.1.1.cmml" xref="A1.SS1.p1.6.m1.1.1"><eq id="A1.SS1.p1.6.m1.1.1.1.cmml" xref="A1.SS1.p1.6.m1.1.1.1"></eq><apply id="A1.SS1.p1.6.m1.1.1.2.cmml" xref="A1.SS1.p1.6.m1.1.1.2"><csymbol cd="ambiguous" id="A1.SS1.p1.6.m1.1.1.2.1.cmml" xref="A1.SS1.p1.6.m1.1.1.2">subscript</csymbol><ci id="A1.SS1.p1.6.m1.1.1.2.2.cmml" xref="A1.SS1.p1.6.m1.1.1.2.2">italic-ϵ</ci><cn type="integer" id="A1.SS1.p1.6.m1.1.1.2.3.cmml" xref="A1.SS1.p1.6.m1.1.1.2.3">0</cn></apply><cn type="float" id="A1.SS1.p1.6.m1.1.1.3.cmml" xref="A1.SS1.p1.6.m1.1.1.3">10.0</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.6.m1.1c">\epsilon_{0}=10.0</annotation></semantics></math>, <math id="A1.SS1.p1.7.m2.1" class="ltx_Math" alttext="f=0.998" display="inline"><semantics id="A1.SS1.p1.7.m2.1a"><mrow id="A1.SS1.p1.7.m2.1.1" xref="A1.SS1.p1.7.m2.1.1.cmml"><mi id="A1.SS1.p1.7.m2.1.1.2" xref="A1.SS1.p1.7.m2.1.1.2.cmml">f</mi><mo id="A1.SS1.p1.7.m2.1.1.1" xref="A1.SS1.p1.7.m2.1.1.1.cmml">=</mo><mn id="A1.SS1.p1.7.m2.1.1.3" xref="A1.SS1.p1.7.m2.1.1.3.cmml">0.998</mn></mrow><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.7.m2.1b"><apply id="A1.SS1.p1.7.m2.1.1.cmml" xref="A1.SS1.p1.7.m2.1.1"><eq id="A1.SS1.p1.7.m2.1.1.1.cmml" xref="A1.SS1.p1.7.m2.1.1.1"></eq><ci id="A1.SS1.p1.7.m2.1.1.2.cmml" xref="A1.SS1.p1.7.m2.1.1.2">𝑓</ci><cn type="float" id="A1.SS1.p1.7.m2.1.1.3.cmml" xref="A1.SS1.p1.7.m2.1.1.3">0.998</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.7.m2.1c">f=0.998</annotation></semantics></math>, <math id="A1.SS1.p1.8.m3.1" class="ltx_Math" alttext="p_{i}=0.5" display="inline"><semantics id="A1.SS1.p1.8.m3.1a"><mrow id="A1.SS1.p1.8.m3.1.1" xref="A1.SS1.p1.8.m3.1.1.cmml"><msub id="A1.SS1.p1.8.m3.1.1.2" xref="A1.SS1.p1.8.m3.1.1.2.cmml"><mi id="A1.SS1.p1.8.m3.1.1.2.2" xref="A1.SS1.p1.8.m3.1.1.2.2.cmml">p</mi><mi id="A1.SS1.p1.8.m3.1.1.2.3" xref="A1.SS1.p1.8.m3.1.1.2.3.cmml">i</mi></msub><mo id="A1.SS1.p1.8.m3.1.1.1" xref="A1.SS1.p1.8.m3.1.1.1.cmml">=</mo><mn id="A1.SS1.p1.8.m3.1.1.3" xref="A1.SS1.p1.8.m3.1.1.3.cmml">0.5</mn></mrow><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.8.m3.1b"><apply id="A1.SS1.p1.8.m3.1.1.cmml" xref="A1.SS1.p1.8.m3.1.1"><eq id="A1.SS1.p1.8.m3.1.1.1.cmml" xref="A1.SS1.p1.8.m3.1.1.1"></eq><apply id="A1.SS1.p1.8.m3.1.1.2.cmml" xref="A1.SS1.p1.8.m3.1.1.2"><csymbol cd="ambiguous" id="A1.SS1.p1.8.m3.1.1.2.1.cmml" xref="A1.SS1.p1.8.m3.1.1.2">subscript</csymbol><ci id="A1.SS1.p1.8.m3.1.1.2.2.cmml" xref="A1.SS1.p1.8.m3.1.1.2.2">𝑝</ci><ci id="A1.SS1.p1.8.m3.1.1.2.3.cmml" xref="A1.SS1.p1.8.m3.1.1.2.3">𝑖</ci></apply><cn type="float" id="A1.SS1.p1.8.m3.1.1.3.cmml" xref="A1.SS1.p1.8.m3.1.1.3">0.5</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.8.m3.1c">p_{i}=0.5</annotation></semantics></math>, <math id="A1.SS1.p1.9.m4.1" class="ltx_Math" alttext="p_{f}=0.99" display="inline"><semantics id="A1.SS1.p1.9.m4.1a"><mrow id="A1.SS1.p1.9.m4.1.1" xref="A1.SS1.p1.9.m4.1.1.cmml"><msub id="A1.SS1.p1.9.m4.1.1.2" xref="A1.SS1.p1.9.m4.1.1.2.cmml"><mi id="A1.SS1.p1.9.m4.1.1.2.2" xref="A1.SS1.p1.9.m4.1.1.2.2.cmml">p</mi><mi id="A1.SS1.p1.9.m4.1.1.2.3" xref="A1.SS1.p1.9.m4.1.1.2.3.cmml">f</mi></msub><mo id="A1.SS1.p1.9.m4.1.1.1" xref="A1.SS1.p1.9.m4.1.1.1.cmml">=</mo><mn id="A1.SS1.p1.9.m4.1.1.3" xref="A1.SS1.p1.9.m4.1.1.3.cmml">0.99</mn></mrow><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.9.m4.1b"><apply id="A1.SS1.p1.9.m4.1.1.cmml" xref="A1.SS1.p1.9.m4.1.1"><eq id="A1.SS1.p1.9.m4.1.1.1.cmml" xref="A1.SS1.p1.9.m4.1.1.1"></eq><apply id="A1.SS1.p1.9.m4.1.1.2.cmml" xref="A1.SS1.p1.9.m4.1.1.2"><csymbol cd="ambiguous" id="A1.SS1.p1.9.m4.1.1.2.1.cmml" xref="A1.SS1.p1.9.m4.1.1.2">subscript</csymbol><ci id="A1.SS1.p1.9.m4.1.1.2.2.cmml" xref="A1.SS1.p1.9.m4.1.1.2.2">𝑝</ci><ci id="A1.SS1.p1.9.m4.1.1.2.3.cmml" xref="A1.SS1.p1.9.m4.1.1.2.3">𝑓</ci></apply><cn type="float" id="A1.SS1.p1.9.m4.1.1.3.cmml" xref="A1.SS1.p1.9.m4.1.1.3">0.99</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.9.m4.1c">p_{f}=0.99</annotation></semantics></math>, <math id="A1.SS1.p1.10.m5.1" class="ltx_Math" alttext="T=500" display="inline"><semantics id="A1.SS1.p1.10.m5.1a"><mrow id="A1.SS1.p1.10.m5.1.1" xref="A1.SS1.p1.10.m5.1.1.cmml"><mi id="A1.SS1.p1.10.m5.1.1.2" xref="A1.SS1.p1.10.m5.1.1.2.cmml">T</mi><mo id="A1.SS1.p1.10.m5.1.1.1" xref="A1.SS1.p1.10.m5.1.1.1.cmml">=</mo><mn id="A1.SS1.p1.10.m5.1.1.3" xref="A1.SS1.p1.10.m5.1.1.3.cmml">500</mn></mrow><annotation-xml encoding="MathML-Content" id="A1.SS1.p1.10.m5.1b"><apply id="A1.SS1.p1.10.m5.1.1.cmml" xref="A1.SS1.p1.10.m5.1.1"><eq id="A1.SS1.p1.10.m5.1.1.1.cmml" xref="A1.SS1.p1.10.m5.1.1.1"></eq><ci id="A1.SS1.p1.10.m5.1.1.2.cmml" xref="A1.SS1.p1.10.m5.1.1.2">𝑇</ci><cn type="integer" id="A1.SS1.p1.10.m5.1.1.3.cmml" xref="A1.SS1.p1.10.m5.1.1.3">500</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A1.SS1.p1.10.m5.1c">T=500</annotation></semantics></math>.
+While using a constant learning rate also gives improvements over standard
+backpropagation, starting with a high learning rate and decaying it provided a
+significant boost in performance. Constraining input vectors to have a fixed
+length prevents weights from increasing arbitrarily in magnitude
+irrespective of the learning rate. This gives the network a lot of opportunity
+to search for a good configuration in the weight space. As the learning rate
+decays, the algorithm is able to take smaller steps and finds the right step size
+at which it can make learning progress. Using a high final momentum distributes
+gradient information over a large number of updates making learning
+stable in this scenario where each gradient computation is for a different
+stochastic network.</p>
+</div>
+</section>
+<section id="A1.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">A.2 </span>Details for dropout finetuning</h3>
+
+<div id="A1.SS2.p1" class="ltx_para">
+<p id="A1.SS2.p1.1" class="ltx_p">Apart from training a neural network starting from random weights, dropout can
+also be used to finetune pretrained models. We found that finetuning a
+model using dropout with a small learning rate can give much better performace
+than standard backpropagation finetuning.</p>
+</div>
+<div id="A1.SS2.p2" class="ltx_para">
+<p id="A1.SS2.p2.1" class="ltx_p"><em id="A1.SS2.p2.1.1" class="ltx_emph ltx_font_italic">Deep Belief Nets</em> - We took a neural network pretrained using a Deep Belief Network  (<span id="A1.SS2.p2.1.2" class="ltx_text ltx_font_italic">?</span>).
+It had a 784-500-500-2000 architecture and was trained using greedy layer-wise
+Contrastive Divergence learning
+<span id="footnote1" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">1</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">1</sup><span class="ltx_tag ltx_tag_note">1</span>For code see <a target="_blank" href="http://www.cs.toronto.edu/~hinton/MatlabForSciencePaper.html" title="" class="ltx_ref ltx_url ltx_font_typewriter">http://www.cs.toronto.edu/~hinton/MatlabForSciencePaper.html</a> </span></span></span>. Instead of fine-tuning it
+with the usual backpropagation algorithm, we used the dropout version of it.
+Dropout rate was same as before : 50% for hidden units and 20% for
+visible units. A constant small learning rate of 1.0 was used. No constraint was imposed on
+the length of incoming weight vectors. No weight decay was used. All other
+hyper-parameters were set to be the same as before. The model was trained for 1000 epochs
+with stochstic gradient descent using minibatches of size 100. While standard
+back propagation gave about 118 errors, dropout decreased the errors to about 92.</p>
+</div>
+<div id="A1.SS2.p3" class="ltx_para">
+<p id="A1.SS2.p3.1" class="ltx_p"><em id="A1.SS2.p3.1.1" class="ltx_emph ltx_font_italic">Deep Boltzmann Machines</em> - We also took a pretrained Deep Boltzmann
+Machine  (<span id="A1.SS2.p3.1.2" class="ltx_text ltx_font_bold">?</span>) <span id="footnote2" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">2</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">2</sup><span class="ltx_tag ltx_tag_note">2</span> For code see
+<a target="_blank" href="http://www.utstat.toronto.edu/~rsalakhu/DBM.html" title="" class="ltx_ref ltx_url ltx_font_typewriter">http://www.utstat.toronto.edu/~rsalakhu/DBM.html</a></span></span></span>
+(784-500-1000-10) and finetuned it using dropout-backpropagation. The
+model uses a 1784 - 500 - 1000 - 10 architecture (The extra 1000 input
+units come from the mean-field activations of the second layer of hidden units
+in the DBM, See  (<span id="A1.SS2.p3.1.3" class="ltx_text ltx_font_italic">?</span>) for details).
+All finetuning hyper-parameters were set to be the same as the ones used for a Deep Belief Network.
+We were able to get a mean of about 79 errors with dropout whereas usual finetuning gives about 94 errors.</p>
+</div>
+<figure id="A1.F5" class="ltx_figure">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1">
+<p id="A1.F5.1" class="ltx_p ltx_align_center ltx_figure_panel"><span id="A1.F5.1.1" class="ltx_text"></span></p>
+</div>
+<div class="ltx_flex_break"></div>
+<div class="ltx_flex_cell ltx_flex_size_1">
+<figure id="A1.F5.sf1" class="ltx_figure ltx_figure_panel"><img src="1207.0580/assets/mnist_features_backprop.png" id="A1.F5.sf1.g1" class="ltx_graphics ltx_img_landscape" width="407" height="298" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">(a) </span></figcaption>
+</figure>
+</div>
+<div class="ltx_flex_break"></div>
+<div class="ltx_flex_cell ltx_flex_size_1">
+<figure id="A1.F5.sf2" class="ltx_figure ltx_figure_panel"><img src="1207.0580/assets/mnist_features_dropout.png" id="A1.F5.sf2.g1" class="ltx_graphics ltx_img_landscape" width="407" height="305" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">(b) </span></figcaption>
+</figure>
+</div>
+</div>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 5: </span>Visualization of features learned by first layer hidden units for (a)
+backprop and (b) dropout on the MNIST dataset.</figcaption>
+</figure>
+</section>
+<section id="A1.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">A.3 </span>Effect on features</h3>
+
+<div id="A1.SS3.p1" class="ltx_para">
+<p id="A1.SS3.p1.1" class="ltx_p">One reason why dropout gives major improvements over backpropagation is that it encourages each individual
+hidden unit to learn a useful feature without relying on specific other hidden units to
+correct its mistakes. In order to verify this and better understand the effect
+of dropout on feature learning, we look at the first level of features learned by a 784-500-500
+neural network without any generative pre-training. The features are shown in Figure <a href="1207.0580v1.html#A1.F5" title="Figure 5 ‣ A.2 Details for dropout finetuning ‣ Appendix A Experiments on MNIST ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">5</span></a>. Each panel shows 100 random
+features learned by each network. The features that dropout
+learns are simpler and look like strokes, whereas the ones learned by
+standard backpropagation are difficult to interpret. This
+confirms that dropout indeed forces the discriminative model to learn
+good features which are less co-adapted and leads to better generalization.</p>
+</div>
+</section>
+</section>
+<section id="A2" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix B </span>Experiments on TIMIT</h2>
+
+<div id="A2.p1" class="ltx_para">
+<p id="A2.p1.1" class="ltx_p">The TIMIT Acoustic-Phonetic Continuous Speech Corpus is a standard dataset used
+for evaluation of automatic speech recognition systems. It consists of
+recordings of 630 speakers of 8 dialects of American English each
+reading 10 phonetically-rich sentences. It also comes with the word and
+phone-level transcriptions of the speech. The objective is to convert a given
+speech signal into a transcription sequence of phones.
+This data needs to be pre-processed to extract input features and output targets.
+We used Kaldi, an open source code library for speech
+<span id="footnote3" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">3</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">3</sup><span class="ltx_tag ltx_tag_note">3</span><a target="_blank" href="http://kaldi.sourceforge.net" title="" class="ltx_ref ltx_url ltx_font_typewriter">http://kaldi.sourceforge.net</a></span></span></span>, to
+pre-process the dataset so that our results can be reproduced exactly.
+The inputs to our networks are log filter bank responses. They are extracted
+for 25 ms speech windows with strides of 10 ms.</p>
+</div>
+<div id="A2.p2" class="ltx_para">
+<p id="A2.p2.1" class="ltx_p">Each dimension of the input representation was normalized to have mean 0 and variance 1.
+Minibatches of size 100 were used for both pretraining and dropout finetuning. We
+tried several network architectures by varying the number of input frames (15 and 31), number of
+layers in the neural network (3, 4 and 5) and the number of hidden units in each
+layer (2000 and 4000).
+Figure <a href="1207.0580v1.html#A2.F6" title="Figure 6 ‣ Appendix B Experiments on TIMIT ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">6</span></a> shows the validation
+error curves for a number of these combinations. Using dropout
+consistently leads to lower error rates.</p>
+</div>
+<figure id="A2.F6" class="ltx_figure">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1">
+<p id="A2.F6.1" class="ltx_p ltx_align_center ltx_figure_panel"><span id="A2.F6.1.1" class="ltx_text"></span></p>
+</div>
+<div class="ltx_flex_break"></div>
+<div class="ltx_flex_cell ltx_flex_size_1">
+<figure id="A2.F6.sf1" class="ltx_figure ltx_figure_panel"><img src="1207.0580/assets/timit_train.png" id="A2.F6.sf1.g1" class="ltx_graphics ltx_img_landscape" width="645" height="344" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">(a) </span></figcaption>
+</figure>
+</div>
+<div class="ltx_flex_break"></div>
+<div class="ltx_flex_cell ltx_flex_size_1">
+<p id="A2.F6.2" class="ltx_p ltx_align_center ltx_figure_panel"><span id="A2.F6.2.1" class="ltx_text">
+
+</span></p>
+</div>
+<div class="ltx_flex_break"></div>
+<div class="ltx_flex_cell ltx_flex_size_1">
+<figure id="A2.F6.sf2" class="ltx_figure ltx_figure_panel"><img src="1207.0580/assets/timit_validation.png" id="A2.F6.sf2.g1" class="ltx_graphics ltx_img_landscape" width="644" height="336" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">(b) </span></figcaption>
+</figure>
+</div>
+</div>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 6: </span>Frame classification error and cross-entropy on the (a) Training and
+(b) Validation set as learning progresses.
+The training error is computed using the stochastic nets.</figcaption>
+</figure>
+<section id="A2.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">B.1 </span>Pretraining</h3>
+
+<div id="A2.SS1.p1" class="ltx_para">
+<p id="A2.SS1.p1.1" class="ltx_p">For all our experiments on TIMIT, we pretrain the neural network with a
+Deep Belief Network  (<span id="A2.SS1.p1.1.1" class="ltx_text ltx_font_italic">?</span>).
+Since the inputs are real-valued, the first layer was pre-trained as a Gaussian RBM. Visible biases were initialized
+to zero and weights to random numbers sampled from a zero-mean normal distribution with
+standard deviation 0.01. The variance of each visible unit was set to 1.0 and
+not learned. Learning was done by minimizing Contrastive Divergence. Momentum
+was used to speed up learning. Momentum started at 0.5 and was increased
+linearly to 0.9 over 20 epochs. A learning rate of 0.001 on the average gradient
+was used (which was then multiplied by 1-momentum). An L2 weight decay of 0.001 was used. The model was
+trained for 100 epochs.</p>
+</div>
+<div id="A2.SS1.p2" class="ltx_para">
+<p id="A2.SS1.p2.2" class="ltx_p">All subsequent layers were trained as binary RBMs. A learning rate of 0.01 was
+used. The visible bias of each unit was initialized to <math id="A2.SS1.p2.1.m1.2" class="ltx_Math" alttext="\log(p/(1-p))" display="inline"><semantics id="A2.SS1.p2.1.m1.2a"><mrow id="A2.SS1.p2.1.m1.2.2.1" xref="A2.SS1.p2.1.m1.2.2.2.cmml"><mi id="A2.SS1.p2.1.m1.1.1" xref="A2.SS1.p2.1.m1.1.1.cmml">log</mi><mo id="A2.SS1.p2.1.m1.2.2.1a" xref="A2.SS1.p2.1.m1.2.2.2.cmml">⁡</mo><mrow id="A2.SS1.p2.1.m1.2.2.1.1" xref="A2.SS1.p2.1.m1.2.2.2.cmml"><mo stretchy="false" id="A2.SS1.p2.1.m1.2.2.1.1.2" xref="A2.SS1.p2.1.m1.2.2.2.cmml">(</mo><mrow id="A2.SS1.p2.1.m1.2.2.1.1.1" xref="A2.SS1.p2.1.m1.2.2.1.1.1.cmml"><mi id="A2.SS1.p2.1.m1.2.2.1.1.1.3" xref="A2.SS1.p2.1.m1.2.2.1.1.1.3.cmml">p</mi><mo id="A2.SS1.p2.1.m1.2.2.1.1.1.2" xref="A2.SS1.p2.1.m1.2.2.1.1.1.2.cmml">/</mo><mrow id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.cmml"><mo stretchy="false" id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.2" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.cmml">(</mo><mrow id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.cmml"><mn id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.2" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.2.cmml">1</mn><mo id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.1" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.1.cmml">−</mo><mi id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.3" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.3.cmml">p</mi></mrow><mo stretchy="false" id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.3" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.cmml">)</mo></mrow></mrow><mo stretchy="false" id="A2.SS1.p2.1.m1.2.2.1.1.3" xref="A2.SS1.p2.1.m1.2.2.2.cmml">)</mo></mrow></mrow><annotation-xml encoding="MathML-Content" id="A2.SS1.p2.1.m1.2b"><apply id="A2.SS1.p2.1.m1.2.2.2.cmml" xref="A2.SS1.p2.1.m1.2.2.1"><log id="A2.SS1.p2.1.m1.1.1.cmml" xref="A2.SS1.p2.1.m1.1.1"></log><apply id="A2.SS1.p2.1.m1.2.2.1.1.1.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1"><divide id="A2.SS1.p2.1.m1.2.2.1.1.1.2.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1.2"></divide><ci id="A2.SS1.p2.1.m1.2.2.1.1.1.3.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1.3">𝑝</ci><apply id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1"><minus id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.1.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.1"></minus><cn type="integer" id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.2.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.2">1</cn><ci id="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.3.cmml" xref="A2.SS1.p2.1.m1.2.2.1.1.1.1.1.1.3">𝑝</ci></apply></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A2.SS1.p2.1.m1.2c">\log(p/(1-p))</annotation></semantics></math> where <math id="A2.SS1.p2.2.m2.1" class="ltx_Math" alttext="p" display="inline"><semantics id="A2.SS1.p2.2.m2.1a"><mi id="A2.SS1.p2.2.m2.1.1" xref="A2.SS1.p2.2.m2.1.1.cmml">p</mi><annotation-xml encoding="MathML-Content" id="A2.SS1.p2.2.m2.1b"><ci id="A2.SS1.p2.2.m2.1.1.cmml" xref="A2.SS1.p2.2.m2.1.1">𝑝</ci></annotation-xml><annotation encoding="application/x-tex" id="A2.SS1.p2.2.m2.1c">p</annotation></semantics></math>
+was the mean activation of that unit in the dataset. All other hyper-parameters
+were set to be the same as those we used for the Gaussian RBM. Each layer was trained for 50 epochs.</p>
+</div>
+</section>
+<section id="A2.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">B.2 </span>Dropout Finetuning</h3>
+
+<div id="A2.SS2.p1" class="ltx_para">
+<p id="A2.SS2.p1.1" class="ltx_p">The pretrained RBMs were used to initialize the weights in a neural network. The
+network was then finetuned with dropout-backpropagation.
+Momentum was increased from 0.5 to 0.9 linearly over 10 epochs. A small constant learning
+rate of 1.0 was used (applied to the average gradient on a minibatch). All other hyperparameters
+are the same as for MNIST dropout finetuning. The model needs to be run for
+about 200 epochs to converge. The same network was also finetuned with standard
+backpropagation using a smaller learning rate of 0.1, keeping all other
+hyperparameters</p>
+</div>
+<div id="A2.SS2.p2" class="ltx_para">
+<p id="A2.SS2.p2.1" class="ltx_p">Figure <a href="1207.0580v1.html#A2.F6" title="Figure 6 ‣ Appendix B Experiments on TIMIT ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">6</span></a> shows the frame classification error and cross-entropy
+objective value on the training and validation sets. We compare the performance
+of dropout and standard backpropagation on several network architectures and
+input representations. Dropout consistently achieves lower error and
+cross-entropy. It significantly controls overfitting, making the method robust
+to choices of network architecture. It allows much larger nets to be trained and removes
+the need for early stopping. We also observed that the final error obtained by
+the model is not very sensitive to the choice of learning rate and momentum.</p>
+</div>
+</section>
+</section>
+<section id="A3" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix C </span>Experiments on Reuters</h2>
+
+<div id="A3.p1" class="ltx_para">
+<p id="A3.p1.1" class="ltx_p">Reuters Corpus Volume I (RCV1-v2)  (<span id="A3.p1.1.1" class="ltx_text ltx_font_bold">?</span>) is an archive of
+804,414 newswire stories that have been manually categorized into 103 topics<span id="footnote4" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">4</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">4</sup><span class="ltx_tag ltx_tag_note">4</span>The corpus is
+available at http://www.ai.mit.edu/projects/jmlr/papers/volume5/lewis04a/lyrl2004_rcv1v2_README.htm</span></span></span>.
+The corpus
+covers four major groups: corporate/industrial, economics, government/social, and markets.
+Sample topics include Energy Markets, Accounts/Earnings, Government Borrowings, Disasters and
+Accidents, Interbank Markets, Legal/Judicial, Production/Services, etc. The topic classes form
+a tree which is typically of depth three.</p>
+</div>
+<div id="A3.p2" class="ltx_para">
+<p id="A3.p2.1" class="ltx_p">We took the dataset and split it into 63 classes based on the
+the 63 categories at the second-level of the category tree.
+We removed 11 categories that did not have any data and one category that
+had only 4 training examples. We also removed one category that covered a huge
+chunk (25%) of the examples. This left us with 50 classes and 402,738 documents.
+We divided the documents into equal-sized training and test sets randomly. Each
+document was represented using the 2000 most frequent non-stopwords in the dataset.</p>
+</div>
+<figure id="A3.F7" class="ltx_figure">
+<div class="ltx_flex_figure">
+<div class="ltx_flex_cell ltx_flex_size_1">
+<figure id="A3.F7.sf1" class="ltx_figure ltx_figure_panel"><img src="1207.0580/assets/reuters_train.png" id="A3.F7.sf1.g1" class="ltx_graphics ltx_img_landscape" width="325" height="245" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">(a) </span></figcaption>
+</figure>
+</div>
+<div class="ltx_flex_break"></div>
+<div class="ltx_flex_cell ltx_flex_size_1">
+<figure id="A3.F7.sf2" class="ltx_figure ltx_figure_panel"><img src="1207.0580/assets/reuters_test.png" id="A3.F7.sf2.g1" class="ltx_graphics ltx_img_landscape" width="325" height="245" alt="Refer to caption">
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">(b) </span></figcaption>
+</figure>
+</div>
+</div>
+<figcaption class="ltx_caption"><span class="ltx_tag ltx_tag_figure">Fig. 7: </span>Classification error rate on the (a) training and (b) validation sets of the Reuters dataset as learning progresses.
+The training error is computed using the stochastic nets.</figcaption>
+</figure>
+<div id="A3.p3" class="ltx_para">
+<p id="A3.p3.1" class="ltx_p">We trained a neural network using dropout-backpropagation and compared it with
+standard backpropagation. We used a 2000-2000-1000-50 architecture. The training
+hyperparameters are same as that in MNIST dropout training (Appendix <a href="1207.0580v1.html#A1.SS1" title="A.1 Details for dropout training ‣ Appendix A Experiments on MNIST ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">A.1</span></a>). Training was done
+for 500 epochs.</p>
+</div>
+<div id="A3.p4" class="ltx_para">
+<p id="A3.p4.1" class="ltx_p">Figure <a href="1207.0580v1.html#A3.F7" title="Figure 7 ‣ Appendix C Experiments on Reuters ‣ Improving neural networks by preventing co-adaptation of feature detectors" class="ltx_ref"><span class="ltx_text ltx_ref_tag">7</span></a> shows the training and test set errors as learning
+progresses. We show two nets - one with a 2000-2000-1000-50 and
+another with a 2000-1000-1000-50 architecture trained with and without dropout.
+As in all previous datasets discussed so far, we obtain significant improvements
+here too. The learning not only results in better generalization, but also
+proceeds smoothly, without the need for early stopping.</p>
+</div>
+</section>
+<section id="A4" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix D </span>Tiny Images and CIFAR-10</h2>
+
+<div id="A4.p1" class="ltx_para">
+<p id="A4.p1.1" class="ltx_p">The Tiny Images dataset contains 80 million <math id="A4.p1.1.m1.1" class="ltx_Math" alttext="32\times 32" display="inline"><semantics id="A4.p1.1.m1.1a"><mrow id="A4.p1.1.m1.1.1" xref="A4.p1.1.m1.1.1.cmml"><mn id="A4.p1.1.m1.1.1.2" xref="A4.p1.1.m1.1.1.2.cmml">32</mn><mo lspace="0.222em" rspace="0.222em" id="A4.p1.1.m1.1.1.1" xref="A4.p1.1.m1.1.1.1.cmml">×</mo><mn id="A4.p1.1.m1.1.1.3" xref="A4.p1.1.m1.1.1.3.cmml">32</mn></mrow><annotation-xml encoding="MathML-Content" id="A4.p1.1.m1.1b"><apply id="A4.p1.1.m1.1.1.cmml" xref="A4.p1.1.m1.1.1"><times id="A4.p1.1.m1.1.1.1.cmml" xref="A4.p1.1.m1.1.1.1"></times><cn type="integer" id="A4.p1.1.m1.1.1.2.cmml" xref="A4.p1.1.m1.1.1.2">32</cn><cn type="integer" id="A4.p1.1.m1.1.1.3.cmml" xref="A4.p1.1.m1.1.1.3">32</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A4.p1.1.m1.1c">32\times 32</annotation></semantics></math> color images
+collected from the web. The images were found by searching various
+image search engines for English nouns, so each image comes with a
+very unreliable label, which is the noun that was used to find it.
+The CIFAR-10 dataset is a subset of the Tiny Images dataset which
+contains 60000 images divided among ten classes<span id="footnote5" class="ltx_note ltx_role_footnote"><sup class="ltx_note_mark">5</sup><span class="ltx_note_outer"><span class="ltx_note_content"><sup class="ltx_note_mark">5</sup><span class="ltx_tag ltx_tag_note">5</span>The CIFAR dataset is
+available at http://www.cs.toronto.edu/<math id="footnote5.m1.1" class="ltx_Math" alttext="\sim" display="inline"><semantics id="footnote5.m1.1b"><mo id="footnote5.m1.1.1" xref="footnote5.m1.1.1.cmml">∼</mo><annotation-xml encoding="MathML-Content" id="footnote5.m1.1c"><csymbol cd="latexml" id="footnote5.m1.1.1.cmml" xref="footnote5.m1.1.1">similar-to</csymbol></annotation-xml><annotation encoding="application/x-tex" id="footnote5.m1.1d">\sim</annotation></semantics></math>kriz/cifar.html. </span></span></span>. Each class contains
+5000 training images and 1000 testing images. The classes are <em id="A4.p1.1.1" class="ltx_emph ltx_font_italic">airplane</em>,
+<em id="A4.p1.1.2" class="ltx_emph ltx_font_italic">automobile</em>, <em id="A4.p1.1.3" class="ltx_emph ltx_font_italic">bird</em>, <em id="A4.p1.1.4" class="ltx_emph ltx_font_italic">cat</em>, <em id="A4.p1.1.5" class="ltx_emph ltx_font_italic">deer</em>, <em id="A4.p1.1.6" class="ltx_emph ltx_font_italic">dog</em>,
+<em id="A4.p1.1.7" class="ltx_emph ltx_font_italic">frog</em>, <em id="A4.p1.1.8" class="ltx_emph ltx_font_italic">horse</em>, <em id="A4.p1.1.9" class="ltx_emph ltx_font_italic">ship</em>, and <em id="A4.p1.1.10" class="ltx_emph ltx_font_italic">truck</em>. The CIFAR-10
+dataset was obtained by filtering the Tiny Images dataset to remove
+images with incorrect labels. The CIFAR-10 images are highly varied,
+and there is no canonical viewpoint or scale at which the objects
+appear. The only criteria for including an image were that the image
+contain one dominant instance of a CIFAR-10 class, and that the object
+in the image be easily identifiable as belonging to the class indicated
+by the image label.</p>
+</div>
+</section>
+<section id="A5" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix E </span>ImageNet</h2>
+
+<div id="A5.p1" class="ltx_para">
+<p id="A5.p1.1" class="ltx_p">ImageNet is a dataset of millions of labeled images in thousands of
+categories. The images were collected from the web and labelled by
+human labellers using Amazon’s Mechanical Turk crowd-sourcing tool.
+In 2010, a subset of roughly 1000 images in each of 1000 classes was
+the basis of an object recognition competition, a part of the Pascal
+Visual Object Challenge. This is the version of ImageNet on which
+we performed our experiments. In all, there are roughly 1.3 million
+training images, 50000 validation images, and 150000 testing images.
+This dataset is similar in spirit to the CIFAR-10, but on a much bigger
+scale. The images are full-resolution, and there are 1000 categories
+instead of ten. Another difference is that the ImageNet images often
+contain multiple instances of ImageNet objects, simply due to the
+sheer number of object classes. For this reason, even a human would
+have difficulty approaching perfect accuracy on this dataset. For
+our experiments we resized all images to <math id="A5.p1.1.m1.1" class="ltx_Math" alttext="256\times 256" display="inline"><semantics id="A5.p1.1.m1.1a"><mrow id="A5.p1.1.m1.1.1" xref="A5.p1.1.m1.1.1.cmml"><mn id="A5.p1.1.m1.1.1.2" xref="A5.p1.1.m1.1.1.2.cmml">256</mn><mo lspace="0.222em" rspace="0.222em" id="A5.p1.1.m1.1.1.1" xref="A5.p1.1.m1.1.1.1.cmml">×</mo><mn id="A5.p1.1.m1.1.1.3" xref="A5.p1.1.m1.1.1.3.cmml">256</mn></mrow><annotation-xml encoding="MathML-Content" id="A5.p1.1.m1.1b"><apply id="A5.p1.1.m1.1.1.cmml" xref="A5.p1.1.m1.1.1"><times id="A5.p1.1.m1.1.1.1.cmml" xref="A5.p1.1.m1.1.1.1"></times><cn type="integer" id="A5.p1.1.m1.1.1.2.cmml" xref="A5.p1.1.m1.1.1.2">256</cn><cn type="integer" id="A5.p1.1.m1.1.1.3.cmml" xref="A5.p1.1.m1.1.1.3">256</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A5.p1.1.m1.1c">256\times 256</annotation></semantics></math> pixels.</p>
+</div>
+</section>
+<section id="A6" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix F </span>Convolutional Neural Networks</h2>
+
+<div id="A6.p1" class="ltx_para">
+<p id="A6.p1.1" class="ltx_p">Our models for CIFAR-10 and ImageNet are deep, feed-forward convolutional
+neural networks (CNNs). Feed-forward neural networks are models which
+consist of several layers of “neurons”, where each neuron in
+a given layer applies a linear filter to the outputs of the neurons
+in the previous layer. Typically, a scalar bias is added to the filter
+output and a nonlinear activation function is applied to the result
+before the neuron’s output is passed to the next layer. The linear
+filters and biases are referred to as <em id="A6.p1.1.1" class="ltx_emph ltx_font_italic">weights</em>, and these are
+the parameters of the network that are learned from the training data.</p>
+</div>
+<div id="A6.p2" class="ltx_para">
+<p id="A6.p2.1" class="ltx_p">CNNs differ from ordinary neural networks in several ways. First,
+neurons in a CNN are organized topographically into a bank that reflects
+the organization of dimensions in the input data. So for images, the
+neurons are laid out on a 2D grid. Second, neurons in a CNN apply
+filters which are local in extent and which are centered at the neuron’s
+location in the topographic organization. This is reasonable for datasets
+where we expect the dependence of input dimensions to be a decreasing
+function of distance, which is the case for pixels in natural images.
+In particular, we expect that useful clues to the identity of the
+object in an input image can be found by examining small local neighborhoods
+of the image. Third, all neurons in a bank apply the same filter,
+but as just mentioned, they apply it at different locations in the
+input image. This is reasonable for datasets with roughly stationary
+statistics, such as natural images. We expect that the same kinds
+of structures can appear at all positions in an input image, so it
+is reasonable to treat all positions equally by filtering them in
+the same way. In this way, a bank of neurons in a CNN applies a convolution
+operation to its input. A single layer in a CNN typically has multiple
+banks of neurons, each performing a convolution with a different filter.
+These banks of neurons become distinct input channels into the next
+layer. The distance, in pixels, between the boundaries of the receptive
+fields of neighboring neurons in a convolutional bank determines the
+<em id="A6.p2.1.1" class="ltx_emph ltx_font_italic">stride</em> with which the convolution operation is applied. Larger
+strides imply fewer neurons per bank. Our models use a stride of one
+pixel unless otherwise noted.</p>
+</div>
+<div id="A6.p3" class="ltx_para">
+<p id="A6.p3.1" class="ltx_p">One important consequence of this convolutional shared-filter architecture
+is a drastic reduction in the number of parameters relative to a neural
+net in which all neurons apply different filters. This reduces the
+net’s representational capacity, but it also reduces its capacity
+to overfit, so dropout is far less advantageous in convolutional layers.</p>
+</div>
+<section id="A6.SS1" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.1 </span>Pooling</h3>
+
+<div id="A6.SS1.p1" class="ltx_para">
+<p id="A6.SS1.p1.1" class="ltx_p">CNNs typically also feature “pooling” layers which summarize
+the activities of local patches of neurons in convolutional layers.
+Essentially, a pooling layer takes as input the output of a convolutional
+layer and subsamples it. A pooling layer consists of pooling units
+which are laid out topographically and connected to a local neighborhood
+of convolutional unit outputs from the same bank. Each pooling unit
+then computes some function of the bank’s output in that neighborhood.
+Typical functions are maximum and average. Pooling layers with such
+units are called max-pooling and average-pooling layers, respectively.
+The pooling units are usually spaced at least several pixels apart,
+so that there are fewer total pooling units than there are convolutional
+unit outputs in the previous layer. Making this spacing smaller than
+the size of the neighborhood that the pooling units summarize produces
+<em id="A6.SS1.p1.1.1" class="ltx_emph ltx_font_italic">overlapping pooling.</em> This variant makes the pooling
+layer produce a coarse coding of the convolutional unit outputs, which
+we have found to aid generalization in our experiments. We refer to
+this spacing as the <em id="A6.SS1.p1.1.2" class="ltx_emph ltx_font_italic">stride</em> between pooling units, analogously
+to the stride between convolutional units. Pooling layers introduce
+a level of local translation invariance to the network, which improves
+generalization. They are the analogues of <em id="A6.SS1.p1.1.3" class="ltx_emph ltx_font_italic">complex cells</em> in
+the mammalian visual cortex, which pool activities of multiple simple
+cells. These cells are known to exhibit similar phase-invariance properties.</p>
+</div>
+</section>
+<section id="A6.SS2" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.2 </span>Local response normalization</h3>
+
+<div id="A6.SS2.p1" class="ltx_para">
+<p id="A6.SS2.p1.3" class="ltx_p">Our networks also include response normalization layers. This type
+of layer encourages competition for large activations among neurons
+belonging to different banks. In particular, the activity <math id="A6.SS2.p1.1.m1.2" class="ltx_Math" alttext="a_{x,y}^{i}" display="inline"><semantics id="A6.SS2.p1.1.m1.2a"><msubsup id="A6.SS2.p1.1.m1.2.3" xref="A6.SS2.p1.1.m1.2.3.cmml"><mi id="A6.SS2.p1.1.m1.2.3.2.2" xref="A6.SS2.p1.1.m1.2.3.2.2.cmml">a</mi><mrow id="A6.SS2.p1.1.m1.2.2.2.4" xref="A6.SS2.p1.1.m1.2.2.2.3.cmml"><mi id="A6.SS2.p1.1.m1.1.1.1.1" xref="A6.SS2.p1.1.m1.1.1.1.1.cmml">x</mi><mo id="A6.SS2.p1.1.m1.2.2.2.4.1" xref="A6.SS2.p1.1.m1.2.2.2.3.cmml">,</mo><mi id="A6.SS2.p1.1.m1.2.2.2.2" xref="A6.SS2.p1.1.m1.2.2.2.2.cmml">y</mi></mrow><mi id="A6.SS2.p1.1.m1.2.3.3" xref="A6.SS2.p1.1.m1.2.3.3.cmml">i</mi></msubsup><annotation-xml encoding="MathML-Content" id="A6.SS2.p1.1.m1.2b"><apply id="A6.SS2.p1.1.m1.2.3.cmml" xref="A6.SS2.p1.1.m1.2.3"><csymbol cd="ambiguous" id="A6.SS2.p1.1.m1.2.3.1.cmml" xref="A6.SS2.p1.1.m1.2.3">superscript</csymbol><apply id="A6.SS2.p1.1.m1.2.3.2.cmml" xref="A6.SS2.p1.1.m1.2.3"><csymbol cd="ambiguous" id="A6.SS2.p1.1.m1.2.3.2.1.cmml" xref="A6.SS2.p1.1.m1.2.3">subscript</csymbol><ci id="A6.SS2.p1.1.m1.2.3.2.2.cmml" xref="A6.SS2.p1.1.m1.2.3.2.2">𝑎</ci><list id="A6.SS2.p1.1.m1.2.2.2.3.cmml" xref="A6.SS2.p1.1.m1.2.2.2.4"><ci id="A6.SS2.p1.1.m1.1.1.1.1.cmml" xref="A6.SS2.p1.1.m1.1.1.1.1">𝑥</ci><ci id="A6.SS2.p1.1.m1.2.2.2.2.cmml" xref="A6.SS2.p1.1.m1.2.2.2.2">𝑦</ci></list></apply><ci id="A6.SS2.p1.1.m1.2.3.3.cmml" xref="A6.SS2.p1.1.m1.2.3.3">𝑖</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS2.p1.1.m1.2c">a_{x,y}^{i}</annotation></semantics></math>
+of a neuron in bank <math id="A6.SS2.p1.2.m2.1" class="ltx_Math" alttext="i" display="inline"><semantics id="A6.SS2.p1.2.m2.1a"><mi id="A6.SS2.p1.2.m2.1.1" xref="A6.SS2.p1.2.m2.1.1.cmml">i</mi><annotation-xml encoding="MathML-Content" id="A6.SS2.p1.2.m2.1b"><ci id="A6.SS2.p1.2.m2.1.1.cmml" xref="A6.SS2.p1.2.m2.1.1">𝑖</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS2.p1.2.m2.1c">i</annotation></semantics></math> at position <math id="A6.SS2.p1.3.m3.2" class="ltx_Math" alttext="(x,y)" display="inline"><semantics id="A6.SS2.p1.3.m3.2a"><mrow id="A6.SS2.p1.3.m3.2.3.2" xref="A6.SS2.p1.3.m3.2.3.1.cmml"><mo stretchy="false" id="A6.SS2.p1.3.m3.2.3.2.1" xref="A6.SS2.p1.3.m3.2.3.1.cmml">(</mo><mi id="A6.SS2.p1.3.m3.1.1" xref="A6.SS2.p1.3.m3.1.1.cmml">x</mi><mo id="A6.SS2.p1.3.m3.2.3.2.2" xref="A6.SS2.p1.3.m3.2.3.1.cmml">,</mo><mi id="A6.SS2.p1.3.m3.2.2" xref="A6.SS2.p1.3.m3.2.2.cmml">y</mi><mo stretchy="false" id="A6.SS2.p1.3.m3.2.3.2.3" xref="A6.SS2.p1.3.m3.2.3.1.cmml">)</mo></mrow><annotation-xml encoding="MathML-Content" id="A6.SS2.p1.3.m3.2b"><interval closure="open" id="A6.SS2.p1.3.m3.2.3.1.cmml" xref="A6.SS2.p1.3.m3.2.3.2"><ci id="A6.SS2.p1.3.m3.1.1.cmml" xref="A6.SS2.p1.3.m3.1.1">𝑥</ci><ci id="A6.SS2.p1.3.m3.2.2.cmml" xref="A6.SS2.p1.3.m3.2.2">𝑦</ci></interval></annotation-xml><annotation encoding="application/x-tex" id="A6.SS2.p1.3.m3.2c">(x,y)</annotation></semantics></math> in the topographic organization
+is divided by</p>
+<table id="A6.Ex5" class="ltx_equation ltx_eqn_table">
+
+<tbody><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_eqn_cell ltx_align_center"><math id="A6.Ex5.m1.3" class="ltx_Math" alttext="\left(1+\alpha\sum_{j=i-N/2}^{i+N/2}(a_{x,y}^{j})^{2}\right)^{\beta}" display="block"><semantics id="A6.Ex5.m1.3a"><msup id="A6.Ex5.m1.3.3" xref="A6.Ex5.m1.3.3.cmml"><mrow id="A6.Ex5.m1.3.3.1.1" xref="A6.Ex5.m1.3.3.1.1.1.cmml"><mo id="A6.Ex5.m1.3.3.1.1.2" xref="A6.Ex5.m1.3.3.1.1.1.cmml">(</mo><mrow id="A6.Ex5.m1.3.3.1.1.1" xref="A6.Ex5.m1.3.3.1.1.1.cmml"><mn id="A6.Ex5.m1.3.3.1.1.1.3" xref="A6.Ex5.m1.3.3.1.1.1.3.cmml">1</mn><mo id="A6.Ex5.m1.3.3.1.1.1.2" xref="A6.Ex5.m1.3.3.1.1.1.2.cmml">+</mo><mrow id="A6.Ex5.m1.3.3.1.1.1.1" xref="A6.Ex5.m1.3.3.1.1.1.1.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.3" xref="A6.Ex5.m1.3.3.1.1.1.1.3.cmml">α</mi><mo lspace="0em" rspace="0em" id="A6.Ex5.m1.3.3.1.1.1.1.2" xref="A6.Ex5.m1.3.3.1.1.1.1.2.cmml">​</mo><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.cmml"><munderover id="A6.Ex5.m1.3.3.1.1.1.1.1.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.cmml"><mo movablelimits="false" rspace="0em" id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.2.cmml">∑</mo><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.2.cmml">j</mi><mo id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.1.cmml">=</mo><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.2.cmml">i</mi><mo id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.1.cmml">−</mo><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.2.cmml">N</mi><mo id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.1.cmml">/</mo><mn id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.3.cmml">2</mn></mrow></mrow></mrow><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.2.cmml">i</mi><mo id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.1.cmml">+</mo><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.2.cmml">N</mi><mo id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.1.cmml">/</mo><mn id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.3.cmml">2</mn></mrow></mrow></munderover><msup id="A6.Ex5.m1.3.3.1.1.1.1.1.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.cmml"><mrow id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.cmml"><mo stretchy="false" id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.cmml">(</mo><msubsup id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.cmml"><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.2.2" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.2.2.cmml">a</mi><mrow id="A6.Ex5.m1.2.2.2.4" xref="A6.Ex5.m1.2.2.2.3.cmml"><mi id="A6.Ex5.m1.1.1.1.1" xref="A6.Ex5.m1.1.1.1.1.cmml">x</mi><mo id="A6.Ex5.m1.2.2.2.4.1" xref="A6.Ex5.m1.2.2.2.3.cmml">,</mo><mi id="A6.Ex5.m1.2.2.2.2" xref="A6.Ex5.m1.2.2.2.2.cmml">y</mi></mrow><mi id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.3.cmml">j</mi></msubsup><mo stretchy="false" id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.cmml">)</mo></mrow><mn id="A6.Ex5.m1.3.3.1.1.1.1.1.1.3" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.3.cmml">2</mn></msup></mrow></mrow></mrow><mo id="A6.Ex5.m1.3.3.1.1.3" xref="A6.Ex5.m1.3.3.1.1.1.cmml">)</mo></mrow><mi id="A6.Ex5.m1.3.3.3" xref="A6.Ex5.m1.3.3.3.cmml">β</mi></msup><annotation-xml encoding="MathML-Content" id="A6.Ex5.m1.3b"><apply id="A6.Ex5.m1.3.3.cmml" xref="A6.Ex5.m1.3.3"><csymbol cd="ambiguous" id="A6.Ex5.m1.3.3.2.cmml" xref="A6.Ex5.m1.3.3">superscript</csymbol><apply id="A6.Ex5.m1.3.3.1.1.1.cmml" xref="A6.Ex5.m1.3.3.1.1"><plus id="A6.Ex5.m1.3.3.1.1.1.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.2"></plus><cn type="integer" id="A6.Ex5.m1.3.3.1.1.1.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.3">1</cn><apply id="A6.Ex5.m1.3.3.1.1.1.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1"><times id="A6.Ex5.m1.3.3.1.1.1.1.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.2"></times><ci id="A6.Ex5.m1.3.3.1.1.1.1.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.3">𝛼</ci><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1"><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2"><csymbol cd="ambiguous" id="A6.Ex5.m1.3.3.1.1.1.1.1.2.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2">superscript</csymbol><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2"><csymbol cd="ambiguous" id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2">subscript</csymbol><sum id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.2"></sum><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3"><eq id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.1"></eq><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.2">𝑗</ci><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3"><minus id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.1"></minus><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.2">𝑖</ci><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3"><divide id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.1"></divide><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.2">𝑁</ci><cn type="integer" id="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.2.3.3.3.3">2</cn></apply></apply></apply></apply><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3"><plus id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.1"></plus><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.2">𝑖</ci><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3"><divide id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.1"></divide><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.2">𝑁</ci><cn type="integer" id="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.2.3.3.3">2</cn></apply></apply></apply><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1"><csymbol cd="ambiguous" id="A6.Ex5.m1.3.3.1.1.1.1.1.1.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1">superscript</csymbol><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1"><csymbol cd="ambiguous" id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1">superscript</csymbol><apply id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1"><csymbol cd="ambiguous" id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.2.1.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1">subscript</csymbol><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.2.2.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.2.2">𝑎</ci><list id="A6.Ex5.m1.2.2.2.3.cmml" xref="A6.Ex5.m1.2.2.2.4"><ci id="A6.Ex5.m1.1.1.1.1.cmml" xref="A6.Ex5.m1.1.1.1.1">𝑥</ci><ci id="A6.Ex5.m1.2.2.2.2.cmml" xref="A6.Ex5.m1.2.2.2.2">𝑦</ci></list></apply><ci id="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.1.1.1.3">𝑗</ci></apply><cn type="integer" id="A6.Ex5.m1.3.3.1.1.1.1.1.1.3.cmml" xref="A6.Ex5.m1.3.3.1.1.1.1.1.1.3">2</cn></apply></apply></apply></apply><ci id="A6.Ex5.m1.3.3.3.cmml" xref="A6.Ex5.m1.3.3.3">𝛽</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex5.m1.3c">\left(1+\alpha\sum_{j=i-N/2}^{i+N/2}(a_{x,y}^{j})^{2}\right)^{\beta}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p id="A6.SS2.p1.6" class="ltx_p">where the sum runs over <math id="A6.SS2.p1.4.m1.1" class="ltx_Math" alttext="N" display="inline"><semantics id="A6.SS2.p1.4.m1.1a"><mi id="A6.SS2.p1.4.m1.1.1" xref="A6.SS2.p1.4.m1.1.1.cmml">N</mi><annotation-xml encoding="MathML-Content" id="A6.SS2.p1.4.m1.1b"><ci id="A6.SS2.p1.4.m1.1.1.cmml" xref="A6.SS2.p1.4.m1.1.1">𝑁</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS2.p1.4.m1.1c">N</annotation></semantics></math> “adjacent” banks of neurons at
+<em id="A6.SS2.p1.6.1" class="ltx_emph ltx_font_italic">the same position in the topographic organization</em>. The
+ordering of the banks is of course arbitrary and determined before
+training begins. Response normalization layers implement a form of
+lateral inhibition found in real neurons. The constants <math id="A6.SS2.p1.5.m2.2" class="ltx_Math" alttext="N,\alpha" display="inline"><semantics id="A6.SS2.p1.5.m2.2a"><mrow id="A6.SS2.p1.5.m2.2.3.2" xref="A6.SS2.p1.5.m2.2.3.1.cmml"><mi id="A6.SS2.p1.5.m2.1.1" xref="A6.SS2.p1.5.m2.1.1.cmml">N</mi><mo id="A6.SS2.p1.5.m2.2.3.2.1" xref="A6.SS2.p1.5.m2.2.3.1.cmml">,</mo><mi id="A6.SS2.p1.5.m2.2.2" xref="A6.SS2.p1.5.m2.2.2.cmml">α</mi></mrow><annotation-xml encoding="MathML-Content" id="A6.SS2.p1.5.m2.2b"><list id="A6.SS2.p1.5.m2.2.3.1.cmml" xref="A6.SS2.p1.5.m2.2.3.2"><ci id="A6.SS2.p1.5.m2.1.1.cmml" xref="A6.SS2.p1.5.m2.1.1">𝑁</ci><ci id="A6.SS2.p1.5.m2.2.2.cmml" xref="A6.SS2.p1.5.m2.2.2">𝛼</ci></list></annotation-xml><annotation encoding="application/x-tex" id="A6.SS2.p1.5.m2.2c">N,\alpha</annotation></semantics></math>,
+and <math id="A6.SS2.p1.6.m3.1" class="ltx_Math" alttext="\beta" display="inline"><semantics id="A6.SS2.p1.6.m3.1a"><mi id="A6.SS2.p1.6.m3.1.1" xref="A6.SS2.p1.6.m3.1.1.cmml">β</mi><annotation-xml encoding="MathML-Content" id="A6.SS2.p1.6.m3.1b"><ci id="A6.SS2.p1.6.m3.1.1.cmml" xref="A6.SS2.p1.6.m3.1.1">𝛽</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS2.p1.6.m3.1c">\beta</annotation></semantics></math> are hyper-parameters whose values are determined using
+a validation set.</p>
+</div>
+</section>
+<section id="A6.SS3" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.3 </span>Neuron nonlinearities</h3>
+
+<div id="A6.SS3.p1" class="ltx_para">
+<p id="A6.SS3.p1.2" class="ltx_p">All of the neurons in our networks utilize the max-with-zero nonlinearity.
+That is, their output is computed as <math id="A6.SS3.p1.1.m1.7" class="ltx_Math" alttext="a_{x,y}^{i}=\max(0,z_{x,y}^{i})" display="inline"><semantics id="A6.SS3.p1.1.m1.7a"><mrow id="A6.SS3.p1.1.m1.7.7" xref="A6.SS3.p1.1.m1.7.7.cmml"><msubsup id="A6.SS3.p1.1.m1.7.7.3" xref="A6.SS3.p1.1.m1.7.7.3.cmml"><mi id="A6.SS3.p1.1.m1.7.7.3.2.2" xref="A6.SS3.p1.1.m1.7.7.3.2.2.cmml">a</mi><mrow id="A6.SS3.p1.1.m1.2.2.2.4" xref="A6.SS3.p1.1.m1.2.2.2.3.cmml"><mi id="A6.SS3.p1.1.m1.1.1.1.1" xref="A6.SS3.p1.1.m1.1.1.1.1.cmml">x</mi><mo id="A6.SS3.p1.1.m1.2.2.2.4.1" xref="A6.SS3.p1.1.m1.2.2.2.3.cmml">,</mo><mi id="A6.SS3.p1.1.m1.2.2.2.2" xref="A6.SS3.p1.1.m1.2.2.2.2.cmml">y</mi></mrow><mi id="A6.SS3.p1.1.m1.7.7.3.3" xref="A6.SS3.p1.1.m1.7.7.3.3.cmml">i</mi></msubsup><mo id="A6.SS3.p1.1.m1.7.7.2" xref="A6.SS3.p1.1.m1.7.7.2.cmml">=</mo><mrow id="A6.SS3.p1.1.m1.7.7.1.1" xref="A6.SS3.p1.1.m1.7.7.1.2.cmml"><mi id="A6.SS3.p1.1.m1.5.5" xref="A6.SS3.p1.1.m1.5.5.cmml">max</mi><mo id="A6.SS3.p1.1.m1.7.7.1.1a" xref="A6.SS3.p1.1.m1.7.7.1.2.cmml">⁡</mo><mrow id="A6.SS3.p1.1.m1.7.7.1.1.1" xref="A6.SS3.p1.1.m1.7.7.1.2.cmml"><mo stretchy="false" id="A6.SS3.p1.1.m1.7.7.1.1.1.2" xref="A6.SS3.p1.1.m1.7.7.1.2.cmml">(</mo><mn id="A6.SS3.p1.1.m1.6.6" xref="A6.SS3.p1.1.m1.6.6.cmml">0</mn><mo id="A6.SS3.p1.1.m1.7.7.1.1.1.3" xref="A6.SS3.p1.1.m1.7.7.1.2.cmml">,</mo><msubsup id="A6.SS3.p1.1.m1.7.7.1.1.1.1" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1.cmml"><mi id="A6.SS3.p1.1.m1.7.7.1.1.1.1.2.2" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1.2.2.cmml">z</mi><mrow id="A6.SS3.p1.1.m1.4.4.2.4" xref="A6.SS3.p1.1.m1.4.4.2.3.cmml"><mi id="A6.SS3.p1.1.m1.3.3.1.1" xref="A6.SS3.p1.1.m1.3.3.1.1.cmml">x</mi><mo id="A6.SS3.p1.1.m1.4.4.2.4.1" xref="A6.SS3.p1.1.m1.4.4.2.3.cmml">,</mo><mi id="A6.SS3.p1.1.m1.4.4.2.2" xref="A6.SS3.p1.1.m1.4.4.2.2.cmml">y</mi></mrow><mi id="A6.SS3.p1.1.m1.7.7.1.1.1.1.3" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1.3.cmml">i</mi></msubsup><mo stretchy="false" id="A6.SS3.p1.1.m1.7.7.1.1.1.4" xref="A6.SS3.p1.1.m1.7.7.1.2.cmml">)</mo></mrow></mrow></mrow><annotation-xml encoding="MathML-Content" id="A6.SS3.p1.1.m1.7b"><apply id="A6.SS3.p1.1.m1.7.7.cmml" xref="A6.SS3.p1.1.m1.7.7"><eq id="A6.SS3.p1.1.m1.7.7.2.cmml" xref="A6.SS3.p1.1.m1.7.7.2"></eq><apply id="A6.SS3.p1.1.m1.7.7.3.cmml" xref="A6.SS3.p1.1.m1.7.7.3"><csymbol cd="ambiguous" id="A6.SS3.p1.1.m1.7.7.3.1.cmml" xref="A6.SS3.p1.1.m1.7.7.3">superscript</csymbol><apply id="A6.SS3.p1.1.m1.7.7.3.2.cmml" xref="A6.SS3.p1.1.m1.7.7.3"><csymbol cd="ambiguous" id="A6.SS3.p1.1.m1.7.7.3.2.1.cmml" xref="A6.SS3.p1.1.m1.7.7.3">subscript</csymbol><ci id="A6.SS3.p1.1.m1.7.7.3.2.2.cmml" xref="A6.SS3.p1.1.m1.7.7.3.2.2">𝑎</ci><list id="A6.SS3.p1.1.m1.2.2.2.3.cmml" xref="A6.SS3.p1.1.m1.2.2.2.4"><ci id="A6.SS3.p1.1.m1.1.1.1.1.cmml" xref="A6.SS3.p1.1.m1.1.1.1.1">𝑥</ci><ci id="A6.SS3.p1.1.m1.2.2.2.2.cmml" xref="A6.SS3.p1.1.m1.2.2.2.2">𝑦</ci></list></apply><ci id="A6.SS3.p1.1.m1.7.7.3.3.cmml" xref="A6.SS3.p1.1.m1.7.7.3.3">𝑖</ci></apply><apply id="A6.SS3.p1.1.m1.7.7.1.2.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1"><max id="A6.SS3.p1.1.m1.5.5.cmml" xref="A6.SS3.p1.1.m1.5.5"></max><cn type="integer" id="A6.SS3.p1.1.m1.6.6.cmml" xref="A6.SS3.p1.1.m1.6.6">0</cn><apply id="A6.SS3.p1.1.m1.7.7.1.1.1.1.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1"><csymbol cd="ambiguous" id="A6.SS3.p1.1.m1.7.7.1.1.1.1.1.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1">superscript</csymbol><apply id="A6.SS3.p1.1.m1.7.7.1.1.1.1.2.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1"><csymbol cd="ambiguous" id="A6.SS3.p1.1.m1.7.7.1.1.1.1.2.1.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1">subscript</csymbol><ci id="A6.SS3.p1.1.m1.7.7.1.1.1.1.2.2.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1.2.2">𝑧</ci><list id="A6.SS3.p1.1.m1.4.4.2.3.cmml" xref="A6.SS3.p1.1.m1.4.4.2.4"><ci id="A6.SS3.p1.1.m1.3.3.1.1.cmml" xref="A6.SS3.p1.1.m1.3.3.1.1">𝑥</ci><ci id="A6.SS3.p1.1.m1.4.4.2.2.cmml" xref="A6.SS3.p1.1.m1.4.4.2.2">𝑦</ci></list></apply><ci id="A6.SS3.p1.1.m1.7.7.1.1.1.1.3.cmml" xref="A6.SS3.p1.1.m1.7.7.1.1.1.1.3">𝑖</ci></apply></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS3.p1.1.m1.7c">a_{x,y}^{i}=\max(0,z_{x,y}^{i})</annotation></semantics></math>
+where <math id="A6.SS3.p1.2.m2.2" class="ltx_Math" alttext="z_{x,y}^{i}" display="inline"><semantics id="A6.SS3.p1.2.m2.2a"><msubsup id="A6.SS3.p1.2.m2.2.3" xref="A6.SS3.p1.2.m2.2.3.cmml"><mi id="A6.SS3.p1.2.m2.2.3.2.2" xref="A6.SS3.p1.2.m2.2.3.2.2.cmml">z</mi><mrow id="A6.SS3.p1.2.m2.2.2.2.4" xref="A6.SS3.p1.2.m2.2.2.2.3.cmml"><mi id="A6.SS3.p1.2.m2.1.1.1.1" xref="A6.SS3.p1.2.m2.1.1.1.1.cmml">x</mi><mo id="A6.SS3.p1.2.m2.2.2.2.4.1" xref="A6.SS3.p1.2.m2.2.2.2.3.cmml">,</mo><mi id="A6.SS3.p1.2.m2.2.2.2.2" xref="A6.SS3.p1.2.m2.2.2.2.2.cmml">y</mi></mrow><mi id="A6.SS3.p1.2.m2.2.3.3" xref="A6.SS3.p1.2.m2.2.3.3.cmml">i</mi></msubsup><annotation-xml encoding="MathML-Content" id="A6.SS3.p1.2.m2.2b"><apply id="A6.SS3.p1.2.m2.2.3.cmml" xref="A6.SS3.p1.2.m2.2.3"><csymbol cd="ambiguous" id="A6.SS3.p1.2.m2.2.3.1.cmml" xref="A6.SS3.p1.2.m2.2.3">superscript</csymbol><apply id="A6.SS3.p1.2.m2.2.3.2.cmml" xref="A6.SS3.p1.2.m2.2.3"><csymbol cd="ambiguous" id="A6.SS3.p1.2.m2.2.3.2.1.cmml" xref="A6.SS3.p1.2.m2.2.3">subscript</csymbol><ci id="A6.SS3.p1.2.m2.2.3.2.2.cmml" xref="A6.SS3.p1.2.m2.2.3.2.2">𝑧</ci><list id="A6.SS3.p1.2.m2.2.2.2.3.cmml" xref="A6.SS3.p1.2.m2.2.2.2.4"><ci id="A6.SS3.p1.2.m2.1.1.1.1.cmml" xref="A6.SS3.p1.2.m2.1.1.1.1">𝑥</ci><ci id="A6.SS3.p1.2.m2.2.2.2.2.cmml" xref="A6.SS3.p1.2.m2.2.2.2.2">𝑦</ci></list></apply><ci id="A6.SS3.p1.2.m2.2.3.3.cmml" xref="A6.SS3.p1.2.m2.2.3.3">𝑖</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS3.p1.2.m2.2c">z_{x,y}^{i}</annotation></semantics></math> is the total input to the neuron (equivalently,
+the output of the neuron’s linear filter added to the bias). This nonlinearity has several
+advantages over traditional saturating neuron models, including a
+significant reduction in the training time required to reach a given
+error rate. This nonlinearity also reduces the need for contrast-normalization
+and similar data pre-processing schemes, because neurons with this
+nonlinearity do not saturate – their activities simply scale up when
+presented with unusually large input values. Consequently, the only
+data pre-processing step which we take is to subtract the mean activity
+from each pixel, so that the data is centered. So we train our networks
+on the (centered) raw RGB values of the pixels.</p>
+</div>
+</section>
+<section id="A6.SS4" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.4 </span>Objective function</h3>
+
+<div id="A6.SS4.p1" class="ltx_para">
+<p id="A6.SS4.p1.1" class="ltx_p">Our networks maximize the multinomial logistic regression objective,
+which is equivalent to minimizing the average across training cases
+of the cross-entropy between the true label distribution and the model’s
+predicted label distribution.</p>
+</div>
+</section>
+<section id="A6.SS5" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.5 </span>Weight initialization</h3>
+
+<div id="A6.SS5.p1" class="ltx_para">
+<p id="A6.SS5.p1.1" class="ltx_p">We initialize the weights in our model from a zero-mean normal distribution
+with a variance set high enough to produce positive inputs into the
+neurons in each layer. This is a slightly tricky point when using
+the max-with-zero nonlinearity. If the input to a neuron is always
+negative, no learning will take place because its output will be uniformly
+zero, as will the derivative of its output with respect to its input.
+Therefore it’s important to initialize the weights from a distribution
+with a sufficiently large variance such that all neurons are likely
+to get positive inputs at least occasionally. In practice, we simply
+try different variances until we find an initialization that works.
+It usually only takes a few attempts. We also find that initializing
+the biases of the neurons in the hidden layers with some positive
+constant (1 in our case) helps get learning off the ground, for the
+same reason.</p>
+</div>
+</section>
+<section id="A6.SS6" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.6 </span>Training</h3>
+
+<div id="A6.SS6.p1" class="ltx_para">
+<p id="A6.SS6.p1.1" class="ltx_p">We train our models using stochastic gradient descent with a batch
+size of 128 examples and momentum of 0.9. Therefore the update rule
+for weight <math id="A6.SS6.p1.1.m1.1" class="ltx_Math" alttext="w" display="inline"><semantics id="A6.SS6.p1.1.m1.1a"><mi id="A6.SS6.p1.1.m1.1.1" xref="A6.SS6.p1.1.m1.1.1.cmml">w</mi><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.1.m1.1b"><ci id="A6.SS6.p1.1.m1.1.1.cmml" xref="A6.SS6.p1.1.m1.1.1">𝑤</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.1.m1.1c">w</annotation></semantics></math> is</p>
+<table id="A8.EGx3" class="ltx_equationgroup ltx_eqn_eqnarray ltx_eqn_table">
+
+<tbody id="A6.Ex6"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="A6.Ex6.m1.1" class="ltx_Math" alttext="\displaystyle v_{i+1}" display="inline"><semantics id="A6.Ex6.m1.1a"><msub id="A6.Ex6.m1.1.1" xref="A6.Ex6.m1.1.1.cmml"><mi id="A6.Ex6.m1.1.1.2" xref="A6.Ex6.m1.1.1.2.cmml">v</mi><mrow id="A6.Ex6.m1.1.1.3" xref="A6.Ex6.m1.1.1.3.cmml"><mi id="A6.Ex6.m1.1.1.3.2" xref="A6.Ex6.m1.1.1.3.2.cmml">i</mi><mo id="A6.Ex6.m1.1.1.3.1" xref="A6.Ex6.m1.1.1.3.1.cmml">+</mo><mn id="A6.Ex6.m1.1.1.3.3" xref="A6.Ex6.m1.1.1.3.3.cmml">1</mn></mrow></msub><annotation-xml encoding="MathML-Content" id="A6.Ex6.m1.1b"><apply id="A6.Ex6.m1.1.1.cmml" xref="A6.Ex6.m1.1.1"><csymbol cd="ambiguous" id="A6.Ex6.m1.1.1.1.cmml" xref="A6.Ex6.m1.1.1">subscript</csymbol><ci id="A6.Ex6.m1.1.1.2.cmml" xref="A6.Ex6.m1.1.1.2">𝑣</ci><apply id="A6.Ex6.m1.1.1.3.cmml" xref="A6.Ex6.m1.1.1.3"><plus id="A6.Ex6.m1.1.1.3.1.cmml" xref="A6.Ex6.m1.1.1.3.1"></plus><ci id="A6.Ex6.m1.1.1.3.2.cmml" xref="A6.Ex6.m1.1.1.3.2">𝑖</ci><cn type="integer" id="A6.Ex6.m1.1.1.3.3.cmml" xref="A6.Ex6.m1.1.1.3.3">1</cn></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex6.m1.1c">\displaystyle v_{i+1}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_center ltx_eqn_cell"><math id="A6.Ex6.m2.1" class="ltx_Math" alttext="\displaystyle=" display="inline"><semantics id="A6.Ex6.m2.1a"><mo id="A6.Ex6.m2.1.1" xref="A6.Ex6.m2.1.1.cmml">=</mo><annotation-xml encoding="MathML-Content" id="A6.Ex6.m2.1b"><eq id="A6.Ex6.m2.1.1.cmml" xref="A6.Ex6.m2.1.1"></eq></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex6.m2.1c">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="A6.Ex6.m3.1" class="ltx_Math" alttext="\displaystyle 0.9v_{i}+\epsilon&lt;\frac{\partial E}{\partial w_{i}}&gt;_{i}" display="inline"><semantics id="A6.Ex6.m3.1a"><mrow id="A6.Ex6.m3.1.2" xref="A6.Ex6.m3.1.2.cmml"><mrow id="A6.Ex6.m3.1.2.2" xref="A6.Ex6.m3.1.2.2.cmml"><mn id="A6.Ex6.m3.1.2.2.2" xref="A6.Ex6.m3.1.2.2.2.cmml">0.9</mn><mo lspace="0em" rspace="0em" id="A6.Ex6.m3.1.2.2.1" xref="A6.Ex6.m3.1.2.2.1.cmml">​</mo><msub id="A6.Ex6.m3.1.2.2.3" xref="A6.Ex6.m3.1.2.2.3.cmml"><mi id="A6.Ex6.m3.1.2.2.3.2" xref="A6.Ex6.m3.1.2.2.3.2.cmml">v</mi><mi id="A6.Ex6.m3.1.2.2.3.3" xref="A6.Ex6.m3.1.2.2.3.3.cmml">i</mi></msub></mrow><mo id="A6.Ex6.m3.1.2.1" xref="A6.Ex6.m3.1.2.1.cmml">+</mo><mrow id="A6.Ex6.m3.1.2.3" xref="A6.Ex6.m3.1.2.3.cmml"><mi id="A6.Ex6.m3.1.2.3.2" xref="A6.Ex6.m3.1.2.3.2.cmml">ϵ</mi><mo lspace="0em" rspace="0em" id="A6.Ex6.m3.1.2.3.1" xref="A6.Ex6.m3.1.2.3.1.cmml">​</mo><msub id="A6.Ex6.m3.1.2.3.3" xref="A6.Ex6.m3.1.2.3.3.cmml"><mrow id="A6.Ex6.m3.1.2.3.3.2.2" xref="A6.Ex6.m3.1.2.3.3.2.1.cmml"><mo fence="true" rspace="0em" id="A6.Ex6.m3.1.2.3.3.2.2.1" xref="A6.Ex6.m3.1.2.3.3.2.1.1.cmml">&lt;</mo><mstyle displaystyle="true" id="A6.Ex6.m3.1.1" xref="A6.Ex6.m3.1.1.cmml"><mfrac id="A6.Ex6.m3.1.1a" xref="A6.Ex6.m3.1.1.cmml"><mrow id="A6.Ex6.m3.1.1.2" xref="A6.Ex6.m3.1.1.2.cmml"><mo rspace="0em" id="A6.Ex6.m3.1.1.2.1" xref="A6.Ex6.m3.1.1.2.1.cmml">∂</mo><mi id="A6.Ex6.m3.1.1.2.2" xref="A6.Ex6.m3.1.1.2.2.cmml">E</mi></mrow><mrow id="A6.Ex6.m3.1.1.3" xref="A6.Ex6.m3.1.1.3.cmml"><mo rspace="0em" id="A6.Ex6.m3.1.1.3.1" xref="A6.Ex6.m3.1.1.3.1.cmml">∂</mo><msub id="A6.Ex6.m3.1.1.3.2" xref="A6.Ex6.m3.1.1.3.2.cmml"><mi id="A6.Ex6.m3.1.1.3.2.2" xref="A6.Ex6.m3.1.1.3.2.2.cmml">w</mi><mi id="A6.Ex6.m3.1.1.3.2.3" xref="A6.Ex6.m3.1.1.3.2.3.cmml">i</mi></msub></mrow></mfrac></mstyle><mo fence="true" lspace="0em" id="A6.Ex6.m3.1.2.3.3.2.2.2" xref="A6.Ex6.m3.1.2.3.3.2.1.1.cmml">&gt;</mo></mrow><mi id="A6.Ex6.m3.1.2.3.3.3" xref="A6.Ex6.m3.1.2.3.3.3.cmml">i</mi></msub></mrow></mrow><annotation-xml encoding="MathML-Content" id="A6.Ex6.m3.1b"><apply id="A6.Ex6.m3.1.2.cmml" xref="A6.Ex6.m3.1.2"><plus id="A6.Ex6.m3.1.2.1.cmml" xref="A6.Ex6.m3.1.2.1"></plus><apply id="A6.Ex6.m3.1.2.2.cmml" xref="A6.Ex6.m3.1.2.2"><times id="A6.Ex6.m3.1.2.2.1.cmml" xref="A6.Ex6.m3.1.2.2.1"></times><cn type="float" id="A6.Ex6.m3.1.2.2.2.cmml" xref="A6.Ex6.m3.1.2.2.2">0.9</cn><apply id="A6.Ex6.m3.1.2.2.3.cmml" xref="A6.Ex6.m3.1.2.2.3"><csymbol cd="ambiguous" id="A6.Ex6.m3.1.2.2.3.1.cmml" xref="A6.Ex6.m3.1.2.2.3">subscript</csymbol><ci id="A6.Ex6.m3.1.2.2.3.2.cmml" xref="A6.Ex6.m3.1.2.2.3.2">𝑣</ci><ci id="A6.Ex6.m3.1.2.2.3.3.cmml" xref="A6.Ex6.m3.1.2.2.3.3">𝑖</ci></apply></apply><apply id="A6.Ex6.m3.1.2.3.cmml" xref="A6.Ex6.m3.1.2.3"><times id="A6.Ex6.m3.1.2.3.1.cmml" xref="A6.Ex6.m3.1.2.3.1"></times><ci id="A6.Ex6.m3.1.2.3.2.cmml" xref="A6.Ex6.m3.1.2.3.2">italic-ϵ</ci><apply id="A6.Ex6.m3.1.2.3.3.cmml" xref="A6.Ex6.m3.1.2.3.3"><csymbol cd="ambiguous" id="A6.Ex6.m3.1.2.3.3.1.cmml" xref="A6.Ex6.m3.1.2.3.3">subscript</csymbol><apply id="A6.Ex6.m3.1.2.3.3.2.1.cmml" xref="A6.Ex6.m3.1.2.3.3.2.2"><csymbol cd="latexml" id="A6.Ex6.m3.1.2.3.3.2.1.1.cmml" xref="A6.Ex6.m3.1.2.3.3.2.2.1">expectation</csymbol><apply id="A6.Ex6.m3.1.1.cmml" xref="A6.Ex6.m3.1.1"><divide id="A6.Ex6.m3.1.1.1.cmml" xref="A6.Ex6.m3.1.1"></divide><apply id="A6.Ex6.m3.1.1.2.cmml" xref="A6.Ex6.m3.1.1.2"><partialdiff id="A6.Ex6.m3.1.1.2.1.cmml" xref="A6.Ex6.m3.1.1.2.1"></partialdiff><ci id="A6.Ex6.m3.1.1.2.2.cmml" xref="A6.Ex6.m3.1.1.2.2">𝐸</ci></apply><apply id="A6.Ex6.m3.1.1.3.cmml" xref="A6.Ex6.m3.1.1.3"><partialdiff id="A6.Ex6.m3.1.1.3.1.cmml" xref="A6.Ex6.m3.1.1.3.1"></partialdiff><apply id="A6.Ex6.m3.1.1.3.2.cmml" xref="A6.Ex6.m3.1.1.3.2"><csymbol cd="ambiguous" id="A6.Ex6.m3.1.1.3.2.1.cmml" xref="A6.Ex6.m3.1.1.3.2">subscript</csymbol><ci id="A6.Ex6.m3.1.1.3.2.2.cmml" xref="A6.Ex6.m3.1.1.3.2.2">𝑤</ci><ci id="A6.Ex6.m3.1.1.3.2.3.cmml" xref="A6.Ex6.m3.1.1.3.2.3">𝑖</ci></apply></apply></apply></apply><ci id="A6.Ex6.m3.1.2.3.3.3.cmml" xref="A6.Ex6.m3.1.2.3.3.3">𝑖</ci></apply></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex6.m3.1c">\displaystyle 0.9v_{i}+\epsilon&lt;\frac{\partial E}{\partial w_{i}}&gt;_{i}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+<tbody id="A6.Ex7"><tr class="ltx_equation ltx_eqn_row ltx_align_baseline">
+<td class="ltx_eqn_cell ltx_eqn_center_padleft"></td>
+<td class="ltx_td ltx_align_right ltx_eqn_cell"><math id="A6.Ex7.m1.1" class="ltx_Math" alttext="\displaystyle w_{i+1}" display="inline"><semantics id="A6.Ex7.m1.1a"><msub id="A6.Ex7.m1.1.1" xref="A6.Ex7.m1.1.1.cmml"><mi id="A6.Ex7.m1.1.1.2" xref="A6.Ex7.m1.1.1.2.cmml">w</mi><mrow id="A6.Ex7.m1.1.1.3" xref="A6.Ex7.m1.1.1.3.cmml"><mi id="A6.Ex7.m1.1.1.3.2" xref="A6.Ex7.m1.1.1.3.2.cmml">i</mi><mo id="A6.Ex7.m1.1.1.3.1" xref="A6.Ex7.m1.1.1.3.1.cmml">+</mo><mn id="A6.Ex7.m1.1.1.3.3" xref="A6.Ex7.m1.1.1.3.3.cmml">1</mn></mrow></msub><annotation-xml encoding="MathML-Content" id="A6.Ex7.m1.1b"><apply id="A6.Ex7.m1.1.1.cmml" xref="A6.Ex7.m1.1.1"><csymbol cd="ambiguous" id="A6.Ex7.m1.1.1.1.cmml" xref="A6.Ex7.m1.1.1">subscript</csymbol><ci id="A6.Ex7.m1.1.1.2.cmml" xref="A6.Ex7.m1.1.1.2">𝑤</ci><apply id="A6.Ex7.m1.1.1.3.cmml" xref="A6.Ex7.m1.1.1.3"><plus id="A6.Ex7.m1.1.1.3.1.cmml" xref="A6.Ex7.m1.1.1.3.1"></plus><ci id="A6.Ex7.m1.1.1.3.2.cmml" xref="A6.Ex7.m1.1.1.3.2">𝑖</ci><cn type="integer" id="A6.Ex7.m1.1.1.3.3.cmml" xref="A6.Ex7.m1.1.1.3.3">1</cn></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex7.m1.1c">\displaystyle w_{i+1}</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_center ltx_eqn_cell"><math id="A6.Ex7.m2.1" class="ltx_Math" alttext="\displaystyle=" display="inline"><semantics id="A6.Ex7.m2.1a"><mo id="A6.Ex7.m2.1.1" xref="A6.Ex7.m2.1.1.cmml">=</mo><annotation-xml encoding="MathML-Content" id="A6.Ex7.m2.1b"><eq id="A6.Ex7.m2.1.1.cmml" xref="A6.Ex7.m2.1.1"></eq></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex7.m2.1c">\displaystyle=</annotation></semantics></math></td>
+<td class="ltx_td ltx_align_left ltx_eqn_cell"><math id="A6.Ex7.m3.1" class="ltx_Math" alttext="\displaystyle w_{i}+v_{i+1}" display="inline"><semantics id="A6.Ex7.m3.1a"><mrow id="A6.Ex7.m3.1.1" xref="A6.Ex7.m3.1.1.cmml"><msub id="A6.Ex7.m3.1.1.2" xref="A6.Ex7.m3.1.1.2.cmml"><mi id="A6.Ex7.m3.1.1.2.2" xref="A6.Ex7.m3.1.1.2.2.cmml">w</mi><mi id="A6.Ex7.m3.1.1.2.3" xref="A6.Ex7.m3.1.1.2.3.cmml">i</mi></msub><mo id="A6.Ex7.m3.1.1.1" xref="A6.Ex7.m3.1.1.1.cmml">+</mo><msub id="A6.Ex7.m3.1.1.3" xref="A6.Ex7.m3.1.1.3.cmml"><mi id="A6.Ex7.m3.1.1.3.2" xref="A6.Ex7.m3.1.1.3.2.cmml">v</mi><mrow id="A6.Ex7.m3.1.1.3.3" xref="A6.Ex7.m3.1.1.3.3.cmml"><mi id="A6.Ex7.m3.1.1.3.3.2" xref="A6.Ex7.m3.1.1.3.3.2.cmml">i</mi><mo id="A6.Ex7.m3.1.1.3.3.1" xref="A6.Ex7.m3.1.1.3.3.1.cmml">+</mo><mn id="A6.Ex7.m3.1.1.3.3.3" xref="A6.Ex7.m3.1.1.3.3.3.cmml">1</mn></mrow></msub></mrow><annotation-xml encoding="MathML-Content" id="A6.Ex7.m3.1b"><apply id="A6.Ex7.m3.1.1.cmml" xref="A6.Ex7.m3.1.1"><plus id="A6.Ex7.m3.1.1.1.cmml" xref="A6.Ex7.m3.1.1.1"></plus><apply id="A6.Ex7.m3.1.1.2.cmml" xref="A6.Ex7.m3.1.1.2"><csymbol cd="ambiguous" id="A6.Ex7.m3.1.1.2.1.cmml" xref="A6.Ex7.m3.1.1.2">subscript</csymbol><ci id="A6.Ex7.m3.1.1.2.2.cmml" xref="A6.Ex7.m3.1.1.2.2">𝑤</ci><ci id="A6.Ex7.m3.1.1.2.3.cmml" xref="A6.Ex7.m3.1.1.2.3">𝑖</ci></apply><apply id="A6.Ex7.m3.1.1.3.cmml" xref="A6.Ex7.m3.1.1.3"><csymbol cd="ambiguous" id="A6.Ex7.m3.1.1.3.1.cmml" xref="A6.Ex7.m3.1.1.3">subscript</csymbol><ci id="A6.Ex7.m3.1.1.3.2.cmml" xref="A6.Ex7.m3.1.1.3.2">𝑣</ci><apply id="A6.Ex7.m3.1.1.3.3.cmml" xref="A6.Ex7.m3.1.1.3.3"><plus id="A6.Ex7.m3.1.1.3.3.1.cmml" xref="A6.Ex7.m3.1.1.3.3.1"></plus><ci id="A6.Ex7.m3.1.1.3.3.2.cmml" xref="A6.Ex7.m3.1.1.3.3.2">𝑖</ci><cn type="integer" id="A6.Ex7.m3.1.1.3.3.3.cmml" xref="A6.Ex7.m3.1.1.3.3.3">1</cn></apply></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.Ex7.m3.1c">\displaystyle w_{i}+v_{i+1}</annotation></semantics></math></td>
+<td class="ltx_eqn_cell ltx_eqn_center_padright"></td>
+</tr></tbody>
+</table>
+<p id="A6.SS6.p1.7" class="ltx_p">where <math id="A6.SS6.p1.2.m1.1" class="ltx_Math" alttext="i" display="inline"><semantics id="A6.SS6.p1.2.m1.1a"><mi id="A6.SS6.p1.2.m1.1.1" xref="A6.SS6.p1.2.m1.1.1.cmml">i</mi><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.2.m1.1b"><ci id="A6.SS6.p1.2.m1.1.1.cmml" xref="A6.SS6.p1.2.m1.1.1">𝑖</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.2.m1.1c">i</annotation></semantics></math> is the iteration index, <math id="A6.SS6.p1.3.m2.1" class="ltx_Math" alttext="v" display="inline"><semantics id="A6.SS6.p1.3.m2.1a"><mi id="A6.SS6.p1.3.m2.1.1" xref="A6.SS6.p1.3.m2.1.1.cmml">v</mi><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.3.m2.1b"><ci id="A6.SS6.p1.3.m2.1.1.cmml" xref="A6.SS6.p1.3.m2.1.1">𝑣</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.3.m2.1c">v</annotation></semantics></math> is a momentum variable, <math id="A6.SS6.p1.4.m3.1" class="ltx_Math" alttext="\epsilon" display="inline"><semantics id="A6.SS6.p1.4.m3.1a"><mi id="A6.SS6.p1.4.m3.1.1" xref="A6.SS6.p1.4.m3.1.1.cmml">ϵ</mi><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.4.m3.1b"><ci id="A6.SS6.p1.4.m3.1.1.cmml" xref="A6.SS6.p1.4.m3.1.1">italic-ϵ</ci></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.4.m3.1c">\epsilon</annotation></semantics></math>
+is the learning rate, and <math id="A6.SS6.p1.5.m4.1" class="ltx_Math" alttext="&lt;\frac{\partial E}{\partial w_{i}}&gt;_{i}" display="inline"><semantics id="A6.SS6.p1.5.m4.1a"><msub id="A6.SS6.p1.5.m4.1.2" xref="A6.SS6.p1.5.m4.1.2.cmml"><mrow id="A6.SS6.p1.5.m4.1.2.2.2" xref="A6.SS6.p1.5.m4.1.2.2.1.cmml"><mo fence="true" rspace="0em" id="A6.SS6.p1.5.m4.1.2.2.2.1" xref="A6.SS6.p1.5.m4.1.2.2.1.1.cmml">&lt;</mo><mfrac id="A6.SS6.p1.5.m4.1.1" xref="A6.SS6.p1.5.m4.1.1.cmml"><mrow id="A6.SS6.p1.5.m4.1.1.2" xref="A6.SS6.p1.5.m4.1.1.2.cmml"><mo rspace="0em" id="A6.SS6.p1.5.m4.1.1.2.1" xref="A6.SS6.p1.5.m4.1.1.2.1.cmml">∂</mo><mi id="A6.SS6.p1.5.m4.1.1.2.2" xref="A6.SS6.p1.5.m4.1.1.2.2.cmml">E</mi></mrow><mrow id="A6.SS6.p1.5.m4.1.1.3" xref="A6.SS6.p1.5.m4.1.1.3.cmml"><mo rspace="0em" id="A6.SS6.p1.5.m4.1.1.3.1" xref="A6.SS6.p1.5.m4.1.1.3.1.cmml">∂</mo><msub id="A6.SS6.p1.5.m4.1.1.3.2" xref="A6.SS6.p1.5.m4.1.1.3.2.cmml"><mi id="A6.SS6.p1.5.m4.1.1.3.2.2" xref="A6.SS6.p1.5.m4.1.1.3.2.2.cmml">w</mi><mi id="A6.SS6.p1.5.m4.1.1.3.2.3" xref="A6.SS6.p1.5.m4.1.1.3.2.3.cmml">i</mi></msub></mrow></mfrac><mo fence="true" lspace="0em" id="A6.SS6.p1.5.m4.1.2.2.2.2" xref="A6.SS6.p1.5.m4.1.2.2.1.1.cmml">&gt;</mo></mrow><mi id="A6.SS6.p1.5.m4.1.2.3" xref="A6.SS6.p1.5.m4.1.2.3.cmml">i</mi></msub><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.5.m4.1b"><apply id="A6.SS6.p1.5.m4.1.2.cmml" xref="A6.SS6.p1.5.m4.1.2"><csymbol cd="ambiguous" id="A6.SS6.p1.5.m4.1.2.1.cmml" xref="A6.SS6.p1.5.m4.1.2">subscript</csymbol><apply id="A6.SS6.p1.5.m4.1.2.2.1.cmml" xref="A6.SS6.p1.5.m4.1.2.2.2"><csymbol cd="latexml" id="A6.SS6.p1.5.m4.1.2.2.1.1.cmml" xref="A6.SS6.p1.5.m4.1.2.2.2.1">expectation</csymbol><apply id="A6.SS6.p1.5.m4.1.1.cmml" xref="A6.SS6.p1.5.m4.1.1"><divide id="A6.SS6.p1.5.m4.1.1.1.cmml" xref="A6.SS6.p1.5.m4.1.1"></divide><apply id="A6.SS6.p1.5.m4.1.1.2.cmml" xref="A6.SS6.p1.5.m4.1.1.2"><partialdiff id="A6.SS6.p1.5.m4.1.1.2.1.cmml" xref="A6.SS6.p1.5.m4.1.1.2.1"></partialdiff><ci id="A6.SS6.p1.5.m4.1.1.2.2.cmml" xref="A6.SS6.p1.5.m4.1.1.2.2">𝐸</ci></apply><apply id="A6.SS6.p1.5.m4.1.1.3.cmml" xref="A6.SS6.p1.5.m4.1.1.3"><partialdiff id="A6.SS6.p1.5.m4.1.1.3.1.cmml" xref="A6.SS6.p1.5.m4.1.1.3.1"></partialdiff><apply id="A6.SS6.p1.5.m4.1.1.3.2.cmml" xref="A6.SS6.p1.5.m4.1.1.3.2"><csymbol cd="ambiguous" id="A6.SS6.p1.5.m4.1.1.3.2.1.cmml" xref="A6.SS6.p1.5.m4.1.1.3.2">subscript</csymbol><ci id="A6.SS6.p1.5.m4.1.1.3.2.2.cmml" xref="A6.SS6.p1.5.m4.1.1.3.2.2">𝑤</ci><ci id="A6.SS6.p1.5.m4.1.1.3.2.3.cmml" xref="A6.SS6.p1.5.m4.1.1.3.2.3">𝑖</ci></apply></apply></apply></apply><ci id="A6.SS6.p1.5.m4.1.2.3.cmml" xref="A6.SS6.p1.5.m4.1.2.3">𝑖</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.5.m4.1c">&lt;\frac{\partial E}{\partial w_{i}}&gt;_{i}</annotation></semantics></math>
+is the average over the <math id="A6.SS6.p1.6.m5.1" class="ltx_Math" alttext="i^{th}" display="inline"><semantics id="A6.SS6.p1.6.m5.1a"><msup id="A6.SS6.p1.6.m5.1.1" xref="A6.SS6.p1.6.m5.1.1.cmml"><mi id="A6.SS6.p1.6.m5.1.1.2" xref="A6.SS6.p1.6.m5.1.1.2.cmml">i</mi><mrow id="A6.SS6.p1.6.m5.1.1.3" xref="A6.SS6.p1.6.m5.1.1.3.cmml"><mi id="A6.SS6.p1.6.m5.1.1.3.2" xref="A6.SS6.p1.6.m5.1.1.3.2.cmml">t</mi><mo lspace="0em" rspace="0em" id="A6.SS6.p1.6.m5.1.1.3.1" xref="A6.SS6.p1.6.m5.1.1.3.1.cmml">​</mo><mi id="A6.SS6.p1.6.m5.1.1.3.3" xref="A6.SS6.p1.6.m5.1.1.3.3.cmml">h</mi></mrow></msup><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.6.m5.1b"><apply id="A6.SS6.p1.6.m5.1.1.cmml" xref="A6.SS6.p1.6.m5.1.1"><csymbol cd="ambiguous" id="A6.SS6.p1.6.m5.1.1.1.cmml" xref="A6.SS6.p1.6.m5.1.1">superscript</csymbol><ci id="A6.SS6.p1.6.m5.1.1.2.cmml" xref="A6.SS6.p1.6.m5.1.1.2">𝑖</ci><apply id="A6.SS6.p1.6.m5.1.1.3.cmml" xref="A6.SS6.p1.6.m5.1.1.3"><times id="A6.SS6.p1.6.m5.1.1.3.1.cmml" xref="A6.SS6.p1.6.m5.1.1.3.1"></times><ci id="A6.SS6.p1.6.m5.1.1.3.2.cmml" xref="A6.SS6.p1.6.m5.1.1.3.2">𝑡</ci><ci id="A6.SS6.p1.6.m5.1.1.3.3.cmml" xref="A6.SS6.p1.6.m5.1.1.3.3">ℎ</ci></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.6.m5.1c">i^{th}</annotation></semantics></math> batch of the derivative of the objective
+with respect to <math id="A6.SS6.p1.7.m6.1" class="ltx_Math" alttext="w_{i}" display="inline"><semantics id="A6.SS6.p1.7.m6.1a"><msub id="A6.SS6.p1.7.m6.1.1" xref="A6.SS6.p1.7.m6.1.1.cmml"><mi id="A6.SS6.p1.7.m6.1.1.2" xref="A6.SS6.p1.7.m6.1.1.2.cmml">w</mi><mi id="A6.SS6.p1.7.m6.1.1.3" xref="A6.SS6.p1.7.m6.1.1.3.cmml">i</mi></msub><annotation-xml encoding="MathML-Content" id="A6.SS6.p1.7.m6.1b"><apply id="A6.SS6.p1.7.m6.1.1.cmml" xref="A6.SS6.p1.7.m6.1.1"><csymbol cd="ambiguous" id="A6.SS6.p1.7.m6.1.1.1.cmml" xref="A6.SS6.p1.7.m6.1.1">subscript</csymbol><ci id="A6.SS6.p1.7.m6.1.1.2.cmml" xref="A6.SS6.p1.7.m6.1.1.2">𝑤</ci><ci id="A6.SS6.p1.7.m6.1.1.3.cmml" xref="A6.SS6.p1.7.m6.1.1.3">𝑖</ci></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS6.p1.7.m6.1c">w_{i}</annotation></semantics></math>. We use the publicly available <span id="A6.SS6.p1.7.1" class="ltx_text ltx_font_typewriter">cuda-convnet</span>
+package to train all of our models on a single NVIDIA GTX 580 GPU.
+Training on CIFAR-10 takes roughly 90 minutes. Training on ImageNet
+takes roughly four days with dropout and two days without.</p>
+</div>
+</section>
+<section id="A6.SS7" class="ltx_subsection">
+<h3 class="ltx_title ltx_title_subsection">
+<span class="ltx_tag ltx_tag_subsection">F.7 </span>Learning rates</h3>
+
+<div id="A6.SS7.p1" class="ltx_para">
+<p id="A6.SS7.p1.2" class="ltx_p">We use an equal learning rate for each layer, whose value we determine
+heuristically as the largest power of ten that produces reductions
+in the objective function. In practice it is typically of the order
+<math id="A6.SS7.p1.1.m1.1" class="ltx_Math" alttext="10^{-2}" display="inline"><semantics id="A6.SS7.p1.1.m1.1a"><msup id="A6.SS7.p1.1.m1.1.1" xref="A6.SS7.p1.1.m1.1.1.cmml"><mn id="A6.SS7.p1.1.m1.1.1.2" xref="A6.SS7.p1.1.m1.1.1.2.cmml">10</mn><mrow id="A6.SS7.p1.1.m1.1.1.3" xref="A6.SS7.p1.1.m1.1.1.3.cmml"><mo id="A6.SS7.p1.1.m1.1.1.3a" xref="A6.SS7.p1.1.m1.1.1.3.cmml">−</mo><mn id="A6.SS7.p1.1.m1.1.1.3.2" xref="A6.SS7.p1.1.m1.1.1.3.2.cmml">2</mn></mrow></msup><annotation-xml encoding="MathML-Content" id="A6.SS7.p1.1.m1.1b"><apply id="A6.SS7.p1.1.m1.1.1.cmml" xref="A6.SS7.p1.1.m1.1.1"><csymbol cd="ambiguous" id="A6.SS7.p1.1.m1.1.1.1.cmml" xref="A6.SS7.p1.1.m1.1.1">superscript</csymbol><cn type="integer" id="A6.SS7.p1.1.m1.1.1.2.cmml" xref="A6.SS7.p1.1.m1.1.1.2">10</cn><apply id="A6.SS7.p1.1.m1.1.1.3.cmml" xref="A6.SS7.p1.1.m1.1.1.3"><minus id="A6.SS7.p1.1.m1.1.1.3.1.cmml" xref="A6.SS7.p1.1.m1.1.1.3"></minus><cn type="integer" id="A6.SS7.p1.1.m1.1.1.3.2.cmml" xref="A6.SS7.p1.1.m1.1.1.3.2">2</cn></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS7.p1.1.m1.1c">10^{-2}</annotation></semantics></math> or <math id="A6.SS7.p1.2.m2.1" class="ltx_Math" alttext="10^{-3}" display="inline"><semantics id="A6.SS7.p1.2.m2.1a"><msup id="A6.SS7.p1.2.m2.1.1" xref="A6.SS7.p1.2.m2.1.1.cmml"><mn id="A6.SS7.p1.2.m2.1.1.2" xref="A6.SS7.p1.2.m2.1.1.2.cmml">10</mn><mrow id="A6.SS7.p1.2.m2.1.1.3" xref="A6.SS7.p1.2.m2.1.1.3.cmml"><mo id="A6.SS7.p1.2.m2.1.1.3a" xref="A6.SS7.p1.2.m2.1.1.3.cmml">−</mo><mn id="A6.SS7.p1.2.m2.1.1.3.2" xref="A6.SS7.p1.2.m2.1.1.3.2.cmml">3</mn></mrow></msup><annotation-xml encoding="MathML-Content" id="A6.SS7.p1.2.m2.1b"><apply id="A6.SS7.p1.2.m2.1.1.cmml" xref="A6.SS7.p1.2.m2.1.1"><csymbol cd="ambiguous" id="A6.SS7.p1.2.m2.1.1.1.cmml" xref="A6.SS7.p1.2.m2.1.1">superscript</csymbol><cn type="integer" id="A6.SS7.p1.2.m2.1.1.2.cmml" xref="A6.SS7.p1.2.m2.1.1.2">10</cn><apply id="A6.SS7.p1.2.m2.1.1.3.cmml" xref="A6.SS7.p1.2.m2.1.1.3"><minus id="A6.SS7.p1.2.m2.1.1.3.1.cmml" xref="A6.SS7.p1.2.m2.1.1.3"></minus><cn type="integer" id="A6.SS7.p1.2.m2.1.1.3.2.cmml" xref="A6.SS7.p1.2.m2.1.1.3.2">3</cn></apply></apply></annotation-xml><annotation encoding="application/x-tex" id="A6.SS7.p1.2.m2.1c">10^{-3}</annotation></semantics></math>. We reduce the learning rate twice by a
+factor of ten shortly before terminating training.</p>
+</div>
+</section>
+</section>
+<section id="A7" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix G </span>Models for CIFAR-10</h2>
+
+<div id="A7.p1" class="ltx_para">
+<p id="A7.p1.5" class="ltx_p">Our model for CIFAR-10 without dropout is a CNN with three convolutional
+layers. Pooling layers follow all three. All of the pooling layers
+summarize a <math id="A7.p1.1.m1.1" class="ltx_Math" alttext="3\times 3" display="inline"><semantics id="A7.p1.1.m1.1a"><mrow id="A7.p1.1.m1.1.1" xref="A7.p1.1.m1.1.1.cmml"><mn id="A7.p1.1.m1.1.1.2" xref="A7.p1.1.m1.1.1.2.cmml">3</mn><mo lspace="0.222em" rspace="0.222em" id="A7.p1.1.m1.1.1.1" xref="A7.p1.1.m1.1.1.1.cmml">×</mo><mn id="A7.p1.1.m1.1.1.3" xref="A7.p1.1.m1.1.1.3.cmml">3</mn></mrow><annotation-xml encoding="MathML-Content" id="A7.p1.1.m1.1b"><apply id="A7.p1.1.m1.1.1.cmml" xref="A7.p1.1.m1.1.1"><times id="A7.p1.1.m1.1.1.1.cmml" xref="A7.p1.1.m1.1.1.1"></times><cn type="integer" id="A7.p1.1.m1.1.1.2.cmml" xref="A7.p1.1.m1.1.1.2">3</cn><cn type="integer" id="A7.p1.1.m1.1.1.3.cmml" xref="A7.p1.1.m1.1.1.3">3</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A7.p1.1.m1.1c">3\times 3</annotation></semantics></math> neighborhood and use a stride of 2. The pooling
+layer which follows the first convolutional layer performs max-pooling,
+while the remaining pooling layers perform average-pooling. Response
+normalization layers follow the first two pooling layers, with <math id="A7.p1.2.m2.1" class="ltx_Math" alttext="N=9" display="inline"><semantics id="A7.p1.2.m2.1a"><mrow id="A7.p1.2.m2.1.1" xref="A7.p1.2.m2.1.1.cmml"><mi id="A7.p1.2.m2.1.1.2" xref="A7.p1.2.m2.1.1.2.cmml">N</mi><mo id="A7.p1.2.m2.1.1.1" xref="A7.p1.2.m2.1.1.1.cmml">=</mo><mn id="A7.p1.2.m2.1.1.3" xref="A7.p1.2.m2.1.1.3.cmml">9</mn></mrow><annotation-xml encoding="MathML-Content" id="A7.p1.2.m2.1b"><apply id="A7.p1.2.m2.1.1.cmml" xref="A7.p1.2.m2.1.1"><eq id="A7.p1.2.m2.1.1.1.cmml" xref="A7.p1.2.m2.1.1.1"></eq><ci id="A7.p1.2.m2.1.1.2.cmml" xref="A7.p1.2.m2.1.1.2">𝑁</ci><cn type="integer" id="A7.p1.2.m2.1.1.3.cmml" xref="A7.p1.2.m2.1.1.3">9</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A7.p1.2.m2.1c">N=9</annotation></semantics></math>,
+<math id="A7.p1.3.m3.1" class="ltx_Math" alttext="\alpha=0.001" display="inline"><semantics id="A7.p1.3.m3.1a"><mrow id="A7.p1.3.m3.1.1" xref="A7.p1.3.m3.1.1.cmml"><mi id="A7.p1.3.m3.1.1.2" xref="A7.p1.3.m3.1.1.2.cmml">α</mi><mo id="A7.p1.3.m3.1.1.1" xref="A7.p1.3.m3.1.1.1.cmml">=</mo><mn id="A7.p1.3.m3.1.1.3" xref="A7.p1.3.m3.1.1.3.cmml">0.001</mn></mrow><annotation-xml encoding="MathML-Content" id="A7.p1.3.m3.1b"><apply id="A7.p1.3.m3.1.1.cmml" xref="A7.p1.3.m3.1.1"><eq id="A7.p1.3.m3.1.1.1.cmml" xref="A7.p1.3.m3.1.1.1"></eq><ci id="A7.p1.3.m3.1.1.2.cmml" xref="A7.p1.3.m3.1.1.2">𝛼</ci><cn type="float" id="A7.p1.3.m3.1.1.3.cmml" xref="A7.p1.3.m3.1.1.3">0.001</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A7.p1.3.m3.1c">\alpha=0.001</annotation></semantics></math>, and <math id="A7.p1.4.m4.1" class="ltx_Math" alttext="\beta=0.75" display="inline"><semantics id="A7.p1.4.m4.1a"><mrow id="A7.p1.4.m4.1.1" xref="A7.p1.4.m4.1.1.cmml"><mi id="A7.p1.4.m4.1.1.2" xref="A7.p1.4.m4.1.1.2.cmml">β</mi><mo id="A7.p1.4.m4.1.1.1" xref="A7.p1.4.m4.1.1.1.cmml">=</mo><mn id="A7.p1.4.m4.1.1.3" xref="A7.p1.4.m4.1.1.3.cmml">0.75</mn></mrow><annotation-xml encoding="MathML-Content" id="A7.p1.4.m4.1b"><apply id="A7.p1.4.m4.1.1.cmml" xref="A7.p1.4.m4.1.1"><eq id="A7.p1.4.m4.1.1.1.cmml" xref="A7.p1.4.m4.1.1.1"></eq><ci id="A7.p1.4.m4.1.1.2.cmml" xref="A7.p1.4.m4.1.1.2">𝛽</ci><cn type="float" id="A7.p1.4.m4.1.1.3.cmml" xref="A7.p1.4.m4.1.1.3">0.75</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A7.p1.4.m4.1c">\beta=0.75</annotation></semantics></math>. The upper-most pooling layer is
+connected to a ten-unit softmax layer which outputs a probability
+distribution over class labels. All convolutional layers have 64 filter banks
+and use a filter size of <math id="A7.p1.5.m5.1" class="ltx_Math" alttext="5\times 5" display="inline"><semantics id="A7.p1.5.m5.1a"><mrow id="A7.p1.5.m5.1.1" xref="A7.p1.5.m5.1.1.cmml"><mn id="A7.p1.5.m5.1.1.2" xref="A7.p1.5.m5.1.1.2.cmml">5</mn><mo lspace="0.222em" rspace="0.222em" id="A7.p1.5.m5.1.1.1" xref="A7.p1.5.m5.1.1.1.cmml">×</mo><mn id="A7.p1.5.m5.1.1.3" xref="A7.p1.5.m5.1.1.3.cmml">5</mn></mrow><annotation-xml encoding="MathML-Content" id="A7.p1.5.m5.1b"><apply id="A7.p1.5.m5.1.1.cmml" xref="A7.p1.5.m5.1.1"><times id="A7.p1.5.m5.1.1.1.cmml" xref="A7.p1.5.m5.1.1.1"></times><cn type="integer" id="A7.p1.5.m5.1.1.2.cmml" xref="A7.p1.5.m5.1.1.2">5</cn><cn type="integer" id="A7.p1.5.m5.1.1.3.cmml" xref="A7.p1.5.m5.1.1.3">5</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A7.p1.5.m5.1c">5\times 5</annotation></semantics></math> (times the number of channels
+in the preceding layer).</p>
+</div>
+<div id="A7.p2" class="ltx_para">
+<p id="A7.p2.1" class="ltx_p">Our model for CIFAR-10 with dropout is similar, but because dropout
+imposes a strong regularization on the network, we are able to use
+more parameters. Therefore we add a fourth weight layer, which takes
+its input from the third pooling layer. This weight layer is <em id="A7.p2.1.1" class="ltx_emph ltx_font_italic">locally-connected
+but not convolutional.</em> It is like a convolutional layer in which
+filters in the same bank do not share weights. This layer contains
+16 banks of filters of size <math id="A7.p2.1.m1.1" class="ltx_Math" alttext="3\times 3" display="inline"><semantics id="A7.p2.1.m1.1a"><mrow id="A7.p2.1.m1.1.1" xref="A7.p2.1.m1.1.1.cmml"><mn id="A7.p2.1.m1.1.1.2" xref="A7.p2.1.m1.1.1.2.cmml">3</mn><mo lspace="0.222em" rspace="0.222em" id="A7.p2.1.m1.1.1.1" xref="A7.p2.1.m1.1.1.1.cmml">×</mo><mn id="A7.p2.1.m1.1.1.3" xref="A7.p2.1.m1.1.1.3.cmml">3</mn></mrow><annotation-xml encoding="MathML-Content" id="A7.p2.1.m1.1b"><apply id="A7.p2.1.m1.1.1.cmml" xref="A7.p2.1.m1.1.1"><times id="A7.p2.1.m1.1.1.1.cmml" xref="A7.p2.1.m1.1.1.1"></times><cn type="integer" id="A7.p2.1.m1.1.1.2.cmml" xref="A7.p2.1.m1.1.1.2">3</cn><cn type="integer" id="A7.p2.1.m1.1.1.3.cmml" xref="A7.p2.1.m1.1.1.3">3</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A7.p2.1.m1.1c">3\times 3</annotation></semantics></math>. This is the layer in which
+we use 50% dropout. The softmax layer takes its input from this fourth
+weight layer.</p>
+</div>
+</section>
+<section id="A8" class="ltx_appendix">
+<h2 class="ltx_title ltx_title_appendix">
+<span class="ltx_tag ltx_tag_appendix">Appendix H </span>Models for ImageNet</h2>
+
+<div id="A8.p1" class="ltx_para">
+<p id="A8.p1.8" class="ltx_p">Our model for ImageNet with dropout is a CNN which is trained on <math id="A8.p1.1.m1.1" class="ltx_Math" alttext="224\times 224" display="inline"><semantics id="A8.p1.1.m1.1a"><mrow id="A8.p1.1.m1.1.1" xref="A8.p1.1.m1.1.1.cmml"><mn id="A8.p1.1.m1.1.1.2" xref="A8.p1.1.m1.1.1.2.cmml">224</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.1.m1.1.1.1" xref="A8.p1.1.m1.1.1.1.cmml">×</mo><mn id="A8.p1.1.m1.1.1.3" xref="A8.p1.1.m1.1.1.3.cmml">224</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.1.m1.1b"><apply id="A8.p1.1.m1.1.1.cmml" xref="A8.p1.1.m1.1.1"><times id="A8.p1.1.m1.1.1.1.cmml" xref="A8.p1.1.m1.1.1.1"></times><cn type="integer" id="A8.p1.1.m1.1.1.2.cmml" xref="A8.p1.1.m1.1.1.2">224</cn><cn type="integer" id="A8.p1.1.m1.1.1.3.cmml" xref="A8.p1.1.m1.1.1.3">224</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.1.m1.1c">224\times 224</annotation></semantics></math>
+patches randomly extracted from the <math id="A8.p1.2.m2.1" class="ltx_Math" alttext="256\times 256" display="inline"><semantics id="A8.p1.2.m2.1a"><mrow id="A8.p1.2.m2.1.1" xref="A8.p1.2.m2.1.1.cmml"><mn id="A8.p1.2.m2.1.1.2" xref="A8.p1.2.m2.1.1.2.cmml">256</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.2.m2.1.1.1" xref="A8.p1.2.m2.1.1.1.cmml">×</mo><mn id="A8.p1.2.m2.1.1.3" xref="A8.p1.2.m2.1.1.3.cmml">256</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.2.m2.1b"><apply id="A8.p1.2.m2.1.1.cmml" xref="A8.p1.2.m2.1.1"><times id="A8.p1.2.m2.1.1.1.cmml" xref="A8.p1.2.m2.1.1.1"></times><cn type="integer" id="A8.p1.2.m2.1.1.2.cmml" xref="A8.p1.2.m2.1.1.2">256</cn><cn type="integer" id="A8.p1.2.m2.1.1.3.cmml" xref="A8.p1.2.m2.1.1.3">256</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.2.m2.1c">256\times 256</annotation></semantics></math> images, as well
+as their horizontal reflections. This is a form of data augmentation
+that reduces the network’s capacity to overfit the training data and
+helps generalization. The network contains seven weight layers. The
+first five are convolutional, while the last two are globally-connected.
+Max-pooling layers follow the first, second, and fifth convolutional
+layers. All of the pooling layers summarize a <math id="A8.p1.3.m3.1" class="ltx_Math" alttext="3\times 3" display="inline"><semantics id="A8.p1.3.m3.1a"><mrow id="A8.p1.3.m3.1.1" xref="A8.p1.3.m3.1.1.cmml"><mn id="A8.p1.3.m3.1.1.2" xref="A8.p1.3.m3.1.1.2.cmml">3</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.3.m3.1.1.1" xref="A8.p1.3.m3.1.1.1.cmml">×</mo><mn id="A8.p1.3.m3.1.1.3" xref="A8.p1.3.m3.1.1.3.cmml">3</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.3.m3.1b"><apply id="A8.p1.3.m3.1.1.cmml" xref="A8.p1.3.m3.1.1"><times id="A8.p1.3.m3.1.1.1.cmml" xref="A8.p1.3.m3.1.1.1"></times><cn type="integer" id="A8.p1.3.m3.1.1.2.cmml" xref="A8.p1.3.m3.1.1.2">3</cn><cn type="integer" id="A8.p1.3.m3.1.1.3.cmml" xref="A8.p1.3.m3.1.1.3">3</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.3.m3.1c">3\times 3</annotation></semantics></math> neighborhood
+and use a stride of 2. Response-normalization layers follow the first
+and second pooling layers. The first convolutional layer has 64 filter
+banks with <math id="A8.p1.4.m4.1" class="ltx_Math" alttext="11\times 11" display="inline"><semantics id="A8.p1.4.m4.1a"><mrow id="A8.p1.4.m4.1.1" xref="A8.p1.4.m4.1.1.cmml"><mn id="A8.p1.4.m4.1.1.2" xref="A8.p1.4.m4.1.1.2.cmml">11</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.4.m4.1.1.1" xref="A8.p1.4.m4.1.1.1.cmml">×</mo><mn id="A8.p1.4.m4.1.1.3" xref="A8.p1.4.m4.1.1.3.cmml">11</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.4.m4.1b"><apply id="A8.p1.4.m4.1.1.cmml" xref="A8.p1.4.m4.1.1"><times id="A8.p1.4.m4.1.1.1.cmml" xref="A8.p1.4.m4.1.1.1"></times><cn type="integer" id="A8.p1.4.m4.1.1.2.cmml" xref="A8.p1.4.m4.1.1.2">11</cn><cn type="integer" id="A8.p1.4.m4.1.1.3.cmml" xref="A8.p1.4.m4.1.1.3">11</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.4.m4.1c">11\times 11</annotation></semantics></math> filters which it applies with a stride of
+4 pixels (this is the distance between neighboring neurons in a bank).
+The second convolutional layer has 256 filter banks with <math id="A8.p1.5.m5.1" class="ltx_Math" alttext="5\times 5" display="inline"><semantics id="A8.p1.5.m5.1a"><mrow id="A8.p1.5.m5.1.1" xref="A8.p1.5.m5.1.1.cmml"><mn id="A8.p1.5.m5.1.1.2" xref="A8.p1.5.m5.1.1.2.cmml">5</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.5.m5.1.1.1" xref="A8.p1.5.m5.1.1.1.cmml">×</mo><mn id="A8.p1.5.m5.1.1.3" xref="A8.p1.5.m5.1.1.3.cmml">5</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.5.m5.1b"><apply id="A8.p1.5.m5.1.1.cmml" xref="A8.p1.5.m5.1.1"><times id="A8.p1.5.m5.1.1.1.cmml" xref="A8.p1.5.m5.1.1.1"></times><cn type="integer" id="A8.p1.5.m5.1.1.2.cmml" xref="A8.p1.5.m5.1.1.2">5</cn><cn type="integer" id="A8.p1.5.m5.1.1.3.cmml" xref="A8.p1.5.m5.1.1.3">5</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.5.m5.1c">5\times 5</annotation></semantics></math>
+filters. This layer takes two inputs. The first input to this layer
+is the (pooled and response-normalized) output of the first convolutional
+layer. The 256 banks in this layer are divided arbitrarily into groups
+of 64, and each group connects to a unique random 16 channels from
+the first convolutional layer. The second input to this layer is a
+subsampled version of the original image (<math id="A8.p1.6.m6.1" class="ltx_Math" alttext="56\times 56" display="inline"><semantics id="A8.p1.6.m6.1a"><mrow id="A8.p1.6.m6.1.1" xref="A8.p1.6.m6.1.1.cmml"><mn id="A8.p1.6.m6.1.1.2" xref="A8.p1.6.m6.1.1.2.cmml">56</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.6.m6.1.1.1" xref="A8.p1.6.m6.1.1.1.cmml">×</mo><mn id="A8.p1.6.m6.1.1.3" xref="A8.p1.6.m6.1.1.3.cmml">56</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.6.m6.1b"><apply id="A8.p1.6.m6.1.1.cmml" xref="A8.p1.6.m6.1.1"><times id="A8.p1.6.m6.1.1.1.cmml" xref="A8.p1.6.m6.1.1.1"></times><cn type="integer" id="A8.p1.6.m6.1.1.2.cmml" xref="A8.p1.6.m6.1.1.2">56</cn><cn type="integer" id="A8.p1.6.m6.1.1.3.cmml" xref="A8.p1.6.m6.1.1.3">56</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.6.m6.1c">56\times 56</annotation></semantics></math>), which is
+filtered by this layer with a stride of 2 pixels. The two maps resulting
+from filtering the two inputs are summed element-wise (they have exactly
+the same dimensions) and a max-with-zero nonlinearity is applied to
+the sum in the usual way. The third, fourth, and fifth convolutional
+layers are connected to one another without any intervening pooling
+or normalization layers, but the max-with-zero nonlinearity is applied
+at each layer after linear filtering. The third convolutional layer
+has 512 filter banks divided into groups of 32, each group connecting
+to a unique random subset of 16 channels produced by the (pooled, normalized)
+outputs of the second convolutional layer. The fourth and fifth convolutional
+layers similarly have 512 filter banks divided into groups of 32,
+each group connecting to a unique random subset of 32 channels produced
+by the layer below. The next two weight layers are globally-connected,
+with 4096 neurons each. In these last two layers we use 50% dropout.
+Finally, the output of the last globally-connected layer is fed to
+a 1000-way softmax which produces a distribution over the 1000 class
+labels. We test our model by averaging the prediction of the net on
+ten <math id="A8.p1.7.m7.1" class="ltx_Math" alttext="224\times 224" display="inline"><semantics id="A8.p1.7.m7.1a"><mrow id="A8.p1.7.m7.1.1" xref="A8.p1.7.m7.1.1.cmml"><mn id="A8.p1.7.m7.1.1.2" xref="A8.p1.7.m7.1.1.2.cmml">224</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.7.m7.1.1.1" xref="A8.p1.7.m7.1.1.1.cmml">×</mo><mn id="A8.p1.7.m7.1.1.3" xref="A8.p1.7.m7.1.1.3.cmml">224</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.7.m7.1b"><apply id="A8.p1.7.m7.1.1.cmml" xref="A8.p1.7.m7.1.1"><times id="A8.p1.7.m7.1.1.1.cmml" xref="A8.p1.7.m7.1.1.1"></times><cn type="integer" id="A8.p1.7.m7.1.1.2.cmml" xref="A8.p1.7.m7.1.1.2">224</cn><cn type="integer" id="A8.p1.7.m7.1.1.3.cmml" xref="A8.p1.7.m7.1.1.3">224</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.7.m7.1c">224\times 224</annotation></semantics></math> patches of the <math id="A8.p1.8.m8.1" class="ltx_Math" alttext="256\times 256" display="inline"><semantics id="A8.p1.8.m8.1a"><mrow id="A8.p1.8.m8.1.1" xref="A8.p1.8.m8.1.1.cmml"><mn id="A8.p1.8.m8.1.1.2" xref="A8.p1.8.m8.1.1.2.cmml">256</mn><mo lspace="0.222em" rspace="0.222em" id="A8.p1.8.m8.1.1.1" xref="A8.p1.8.m8.1.1.1.cmml">×</mo><mn id="A8.p1.8.m8.1.1.3" xref="A8.p1.8.m8.1.1.3.cmml">256</mn></mrow><annotation-xml encoding="MathML-Content" id="A8.p1.8.m8.1b"><apply id="A8.p1.8.m8.1.1.cmml" xref="A8.p1.8.m8.1.1"><times id="A8.p1.8.m8.1.1.1.cmml" xref="A8.p1.8.m8.1.1.1"></times><cn type="integer" id="A8.p1.8.m8.1.1.2.cmml" xref="A8.p1.8.m8.1.1.2">256</cn><cn type="integer" id="A8.p1.8.m8.1.1.3.cmml" xref="A8.p1.8.m8.1.1.3">256</cn></apply></annotation-xml><annotation encoding="application/x-tex" id="A8.p1.8.m8.1c">256\times 256</annotation></semantics></math> input image: the
+center patch, the four corner patches, and their horizontal reflections.
+Even though we make ten passes of each image at test time, we are
+able to run our system in real-time.</p>
+</div>
+<div id="A8.p2" class="ltx_para">
+<p id="A8.p2.1" class="ltx_p">Our model for ImageNet without dropout is similar, but without the
+two globally-connected layers which create serious overfitting when
+used without dropout.</p>
+</div>
+<div id="A8.p3" class="ltx_para">
+<p id="A8.p3.1" class="ltx_p">In order to achieve state-of-the-art performance on the validation
+set, we found it necessary to use the very complicated network
+architecture described above. Fortunately, the complexity of this
+architecture is not the main point of our paper. What we wanted to
+demonstrate is that dropout is a significant help even for the very complex
+neural nets that have been developed by the joint efforts of many
+groups over many years to be really good at object recognition. This
+is clearly demonstrated by the fact that using non-convolutional
+higher layers with a lot of parameters leads to a big improvement with
+dropout but makes things worse without dropout.</p>
+</div>
+</section>
+</article>
+</div>
+<div class="ar5iv-footer"><a href="https://ar5iv.labs.arxiv.org/html/1207.0579" class="ar5iv-nav-button ar5iv-nav-button-prev">◄</a>
+    <a class="ar5iv-home-button" href="https://ar5iv.labs.arxiv.org/"><img height="40" alt="ar5iv homepage" src="../assets/ar5iv.png"></a>
+    <a href="https://ar5iv.labs.arxiv.org/feeling_lucky" class="ar5iv-text-button">Feeling<br>lucky?</a>
+    <a href="https://ar5iv.labs.arxiv.org/land_of_honey_and_milk" rel="nofollow" aria-hidden="true" tabindex="-1"></a>
+    <a href="https://ar5iv.labs.arxiv.org/log/1207.0580" class="ar5iv-text-button ar5iv-severity-warning">Conversion<br>report</a>
+    <a class="ar5iv-text-button" target="_blank" href="https://github.com/dginev/ar5iv/issues/new?template=improve-article--arxiv-id-.md&title=Improve+article+1207.0580">Report<br>an issue</a>
+    <a href="https://arxiv.org/abs/1207.0580" class="ar5iv-text-button arxiv-ui-theme">View&nbsp;original<br>on&nbsp;arXiv</a><a href="https://ar5iv.labs.arxiv.org/html/1207.0581" class="ar5iv-nav-button ar5iv-nav-button-next">►</a>
+</div><footer class="ltx_page_footer">
+<a class="ar5iv-toggle-color-scheme" href="javascript:toggleColorScheme()" title="Toggle ar5iv color scheme"><span class="color-scheme-icon"></span></a>
+<a class="ar5iv-footer-button" href="https://arxiv.org/help/license" target="_blank">Copyright</a>
+<a class="ar5iv-footer-button" href="https://arxiv.org/help/policies/privacy_policy" target="_blank">Privacy Policy</a>
+
+<div class="ltx_page_logo">Generated  on Fri Mar 15 02:14:38 2024 by <a target="_blank" href="http://dlmf.nist.gov/LaTeXML/" class="ltx_LaTeXML_logo"><span style="letter-spacing:-0.2em; margin-right:0.1em;">L<span class="ltx_font_smallcaps" style="position:relative; bottom:2.2pt;">a</span>T<span class="ltx_font_smallcaps" style="font-size:120%;position:relative; bottom:-0.2ex;">e</span></span><span style="font-size:90%; position:relative; bottom:-0.2ex;">XML</span><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAsAAAAOCAYAAAD5YeaVAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB9wKExQZLWTEaOUAAAAddEVYdENvbW1lbnQAQ3JlYXRlZCB3aXRoIFRoZSBHSU1Q72QlbgAAAdpJREFUKM9tkL+L2nAARz9fPZNCKFapUn8kyI0e4iRHSR1Kb8ng0lJw6FYHFwv2LwhOpcWxTjeUunYqOmqd6hEoRDhtDWdA8ApRYsSUCDHNt5ul13vz4w0vWCgUnnEc975arX6ORqN3VqtVZbfbTQC4uEHANM3jSqXymFI6yWazP2KxWAXAL9zCUa1Wy2tXVxheKA9YNoR8Pt+aTqe4FVVVvz05O6MBhqUIBGk8Hn8HAOVy+T+XLJfLS4ZhTiRJgqIoVBRFIoric47jPnmeB1mW/9rr9ZpSSn3Lsmir1fJZlqWlUonKsvwWwD8ymc/nXwVBeLjf7xEKhdBut9Hr9WgmkyGEkJwsy5eHG5vN5g0AKIoCAEgkEkin0wQAfN9/cXPdheu6P33fBwB4ngcAcByHJpPJl+fn54mD3Gg0NrquXxeLRQAAwzAYj8cwTZPwPH9/sVg8PXweDAauqqr2cDjEer1GJBLBZDJBs9mE4zjwfZ85lAGg2+06hmGgXq+j3+/DsixYlgVN03a9Xu8jgCNCyIegIAgx13Vfd7vdu+FweG8YRkjXdWy329+dTgeSJD3ieZ7RNO0VAXAPwDEAO5VKndi2fWrb9jWl9Esul6PZbDY9Go1OZ7PZ9z/lyuD3OozU2wAAAABJRU5ErkJggg==" alt="Mascot Sammy"></a>
+</div></footer>
+</div>
+
+    <script>
+      var canMathML = typeof(MathMLElement) == "function";
+      if (!canMathML) {
+        var body = document.querySelector("body");
+        body.firstElementChild.setAttribute('style', 'opacity: 0;');
+        var loading = document.createElement("div");
+        loading.setAttribute("id", "mathjax-loading-spinner");
+        var message = document.createElement("div");
+        message.setAttribute("id", "mathjax-loading-message");
+        message.innerText = "Typesetting Equations...";
+        body.prepend(loading);
+        body.prepend(message);
+
+        var el = document.createElement("script");
+        el.src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js";
+        document.querySelector("head").appendChild(el);
+
+        window.MathJax = {
+          startup: {
+            pageReady: () => {
+              return MathJax.startup.defaultPageReady().then(() => {
+                body.removeChild(loading);
+                body.removeChild(message);
+                body.firstElementChild.removeAttribute('style');
+              }); } } };
+      }
+    </script>
+    <script>
+    // Auxiliary function, building the preview feature when
+    // an inline citation is clicked
+    function clicked_cite(e) {
+      e.preventDefault();
+      let cite = this.closest('.ltx_cite');
+      let next = cite.nextSibling;
+      if (next && next.nodeType == Node.ELEMENT_NODE && next.getAttribute('class') == "ar5iv-bibitem-preview") {
+        next.remove();
+        return; }
+      // Before adding a preview modal,
+      // cleanup older previews, in case they're still open
+      document.querySelectorAll('span.ar5iv-bibitem-preview').forEach(function(node) {
+        node.remove();
+      })
+
+      // Create the preview
+      preview = document.createElement('span');
+      preview.setAttribute('class','ar5iv-bibitem-preview');
+      let target = document.getElementById(this.getAttribute('href').slice(1));
+      target.childNodes.forEach(function (child) {
+        preview.append(child.cloneNode(true));
+      });
+      let close_x = document.createElement('button');
+      close_x.setAttribute("aria-label","Close modal for bibliography item preview");
+      close_x.textContent = "×";
+      close_x.setAttribute('class', 'ar5iv-button-close-preview');
+      close_x.setAttribute('onclick','this.parentNode.remove()');
+      preview.append(close_x);
+      preview.querySelectorAll('.ltx_tag_bibitem').forEach(function(node) {
+        node.remove();
+      });
+      cite.parentNode.insertBefore(preview, cite.nextSibling);
+      return;
+    }
+    // Global Document initialization:
+    // - assign the preview feature to all inline citation links
+    document.querySelectorAll(".ltx_cite .ltx_ref").forEach(function (link) {
+      link.addEventListener("click", clicked_cite);
+    });
+    </script>
+    </body>
+</html>

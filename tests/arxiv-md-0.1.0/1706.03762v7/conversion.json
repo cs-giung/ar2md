@@ -1,0 +1,42 @@
+{
+  "ok": true,
+  "source": "/tmp/arxiv-md-archives-xq9ml7e7/1706.03762v7-source.tar.gz",
+  "main_tex": "/tmp/ar2md-comparison/arxiv-md-0.1.0/1706.03762v7/source/ms.tex",
+  "converter": "tex",
+  "warnings": [],
+  "stats": {
+    "tex_files_read": 8,
+    "figures_total": 8,
+    "figures_resolved": 8,
+    "tables_html": 4,
+    "tables_raw": 0,
+    "unknown_commands": 5,
+    "unknown_command_counts": {
+      "\\boldmath": 1,
+      "\\multirow": 4
+    },
+    "unknown_env_counts": {},
+    "raw_fallback_command_counts": {}
+  },
+  "config": {
+    "keep_source": false,
+    "render_assets": true,
+    "asset_mode": "rasterize",
+    "raster_dpi": 120,
+    "strict": false,
+    "limits": {
+      "max_archive_members": 10000,
+      "max_archive_total_bytes": 536870912,
+      "max_single_file_bytes": 67108864,
+      "max_tex_source_bytes": 67108864,
+      "max_include_files": 2000,
+      "max_asset_files_scanned": 50000,
+      "max_tex_files_scanned": 500,
+      "max_bib_files_scanned": 2000,
+      "max_pdf_pages_rasterized": 1,
+      "max_macro_expansion_depth": 32,
+      "max_macro_expanded_nodes": 100000,
+      "max_table_nesting_depth": 4
+    }
+  }
+}

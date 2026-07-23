@@ -1,0 +1,55 @@
+{
+  "ok": true,
+  "source": "/tmp/arxiv-md-archives-if33ecmk/1207.0580v1-source.tar.gz",
+  "main_tex": "/tmp/ar2md-comparison/arxiv-md-0.1.0/1207.0580v1/source/dropout.tex",
+  "converter": "tex",
+  "warnings": [
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: sciabstract"
+    },
+    {
+      "code": "unknown_env",
+      "message": "Unknown environment preserved: scilastnote"
+    }
+  ],
+  "stats": {
+    "tex_files_read": 1,
+    "figures_total": 10,
+    "figures_resolved": 10,
+    "tables_html": 0,
+    "tables_raw": 0,
+    "unknown_commands": 0,
+    "unknown_command_counts": {},
+    "unknown_env_counts": {
+      "sciabstract": 1,
+      "scilastnote": 1
+    },
+    "raw_fallback_command_counts": {
+      "\\begin": 2,
+      "\\end": 2,
+      "\\item": 1
+    }
+  },
+  "config": {
+    "keep_source": false,
+    "render_assets": true,
+    "asset_mode": "rasterize",
+    "raster_dpi": 120,
+    "strict": false,
+    "limits": {
+      "max_archive_members": 10000,
+      "max_archive_total_bytes": 536870912,
+      "max_single_file_bytes": 67108864,
+      "max_tex_source_bytes": 67108864,
+      "max_include_files": 2000,
+      "max_asset_files_scanned": 50000,
+      "max_tex_files_scanned": 500,
+      "max_bib_files_scanned": 2000,
+      "max_pdf_pages_rasterized": 1,
+      "max_macro_expansion_depth": 32,
+      "max_macro_expanded_nodes": 100000,
+      "max_table_nesting_depth": 4
+    }
+  }
+}

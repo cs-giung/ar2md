@@ -1,0 +1,48 @@
+[project]
+name = "ar2md"
+version = "0.1.0"
+description = "Download arXiv HTML papers and convert them to LLM-ready Markdown"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [
+    { name = "cs-giung" },
+]
+keywords = ["arxiv", "markdown", "pandoc", "llm"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Text Processing :: Markup",
+]
+dependencies = []
+
+[project.urls]
+Homepage = "https://github.com/cs-giung/ar2md"
+Repository = "https://github.com/cs-giung/ar2md"
+Issues = "https://github.com/cs-giung/ar2md/issues"
+
+[project.scripts]
+ar2md = "ar2md.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+exclude = [
+    "/.github",
+    "/tests",
+    "/uv.lock",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ar2md"]
